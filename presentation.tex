@@ -16,6 +16,7 @@
 % Zebra colored listings
 \newcommand\realnumberstyle[1]{}
 
+
 \makeatletter
 \newcommand{\zebra}[3]{%
     {\realnumberstyle{#3}}%
@@ -108,8 +109,8 @@
 
 \begin{frame}[fragile]{Dirac Benchmark 12}
     \begin{columns}[t]
-        \begin{column}{0.5\textwidth}
-            \setlist{leftmargin=1mm,label=$\diamond$}
+        \begin{column}{0.55\textwidth}
+            \setlist{leftmargin=4mm,label=$\diamond$}
             \begin{itemize}[noitemsep,topsep=0pt]
             \small
                 \item Python benchmark, basically \textit{random.normalvariate()}
@@ -133,7 +134,7 @@ for i in range( iterations + 1):
             \end{lstlisting}
             \hypersetup{colorlinks=true, linkbordercolor=lightblue, pdfborderstyle={}}
         \end{column}
-    \begin{column}{0.5\textwidth}
+    \begin{column}{0.55\textwidth}
 \def\arraystretch{1.2}
 \arrayrulewidth=0.4pt
 
@@ -164,12 +165,12 @@ for i in range( iterations + 1):
 \begin{tabular}{ l | c |  c |  c }
    \multicolumn{4}{ c }{Benchmark Results} \\
    \hline
-   & \textbf{IB} & \textbf{HSW} & Speedup \\
+   & \textbf{Ivy Bridge} & \textbf{Haswell} & $\Delta$  \\
   \hline
     $HS06_{32 t}$ & 350.19 & 360.87 & +3\%\\
     $HS06_{1 t}$ & 26.35 & 28.54 & +8\% \\
     $DB12_{32 t}$ & 10.98 & 12.27 & +12\% \\
-\fourthrowcolor $DB12_{1 t}$ & 20.99 & 30.17 & +44\% \\
+    \fourthrowcolor $DB12_{1 t}$ & 20.99 & 30.17 & +44\% \\
 \hline
 \end{tabular}
 \end{table}
@@ -287,31 +288,81 @@ switch (opcode) {
 \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{DB 12 - Profiling}
+\begin{frame}[fragile]{DB 12 - Profiling}{Only}
 
 \begin{table}
+\def\firstrowcolor{}
+\def\secondrowcolor{}
+\def\thirdrowcolor{}
+\def\fourthrowcolor{}
+\def\fifthrowcolor{}
+\def\sixthrowcolor{}
+\def\seventhrowcolor{}
+\def\eighthrowcolor{}
+\def\ninethrowcolor{}
+\def\tenthrowcolor{}
+\def\eleventhrowcolor{}
+\def\twelvethrowcolor{}
+\def\thirteenthrowcolor{}
+\def\fourteenthrowcolor{}
+
+\only<2>{\def\firstrowcolor{\rowcolor{lightgray}}}
+\only<3>{\def\secondrowcolor{\rowcolor{lightgray}}}
+\only<4>{\def\thirdrowcolor{\rowcolor{lightgray}}}
+\only<5>{\def\fourthrowcolor{\rowcolor{lightgray}}}
+\only<6>{\def\fifthrowcolor{\rowcolor{lightgray}}}
+\only<7>{\def\sixthrowcolor{\rowcolor{lightgray}}}
+\only<8>{\def\seventhrowcolor{\rowcolor{lightgray}}}
+\only<9>{\def\eighthrowcolor{\rowcolor{lightgray}}}
+\only<10>{\def\ninethrowcolor{\rowcolor{lightgray}}}
+\only<11>{\def\tenthrowcolor{\rowcolor{lightgray}}}
+\only<12>{\def\eleventhrowcolor{\rowcolor{lightgray}}}
+\only<13>{\def\twelvethrowcolor{\rowcolor{lightgray}}}
+\only<14>{\def\thirteenthrowcolor{\rowcolor{lightgray}}}
+\only<15>{\def\fourteenthrowcolor{\rowcolor{lightgray}}}
 \scriptsize
-\begin{tabular}{ l |  r |  c | c | c| c | }
-   \multicolumn{6}{ c }{Performance statistics} \\
+\begin{tabular}{ l |  r |  r | r }
+   \multicolumn{4}{ c }{Performance statistics} \\
    \hline
-   & \textbf{Ivy Bridge} & \% & \textbf{Haswell} & \%  & $\Delta$ \\
+   & \textbf{Ivy Bridge} & \textbf{Haswell} &  $\Delta$ \\
     \hline
-  task-clock & 34725.557061  & & & \\
-  context-switches & 1,757  & & & \\
-  cpu-migrations & 0  & & & \\
-  page-faults & 77,735  & & & \\
-  cycles & 115,880,566,912  & & & \\
-  stalled-cycles-frontend & 33,935,812,197  & & & \\
-  instructions & 196,423,070,931  & & & \\
-  branches & 39,007,221,715  & & & \\
-  branch-misses & 771,858,119  & & & \\
-  L1-dcache-loads & 65,738,912,645  & & & \\
-  L1-dcache-load-misses & 223,445,275  & & & \\
-  LLC-loads & 18,182,616  & & & \\
+  \firstrowcolor task-clock & 34725.557061  & 24105.686437 &  10s\\
+  \secondrowcolor context-switches & 1,757  & 1,220 & -30\% \\
+  \thirdrowcolor cpu-migrations & 0  & 1 &  \\
+  \fourthrowcolor page-faults & 77,735  & 77,727 &  -0.01\% \\
+  \fifthrowcolor cycles & 115,880,566,912  & 79,856,590,321 &  \\
+  \sixthrowcolor stalled-cycles-frontend & 33,935,812,197  & -  &  \\
+  \seventhrowcolor instructions & 196,423,070,931  & 196,279,702,821 & -0.07\% \\
+  \eighthrowcolor branches & 39,007,221,715  & 38,988,806,436 & -0.04\%  \\
+  \ninethrowcolor \fourteenthrowcolor branch-misses & 771,858,119  & 148,049,799 & -80\% \\
+  \tenthrowcolor L1-dcache-loads & 65,738,912,645  & 65,709,868,550 & -0.4\% \\
+  \eleventhrowcolor L1-dcache-load-misses & 223,445,275  & 190,642,933 & -14.6\% \\
+  \twelvethrowcolor LLC-loads & 18,182,616  & 17,276,409 & -5\% \\
+  \thirteenthrowcolor LLC-load-misses & 12,658,059  & 12,296,728 & -2.8\%  \\
   \hline
 \end{tabular}
 \end{table}
-
+\setlist{leftmargin=10mm,label=$\diamond$}
+\begin{minipage}[t][10mm][t]{\textwidth}
+\begin{itemize}
+    \small
+    % Why the first item is not vertically aligned?
+    \item<2|only@2> \vspace{1.01mm} Runtime in milliseconds: 10s difference
+    \item<2|only@2> \vspace{1.01mm} Looking for architectural explanation 
+                                    behind additional speedup
+    \item<3|only@3> Context switches most likeley due to timer softirq
+    \item<3|only@3> 500 more context switches on Ivy Bridge, cost is negligible
+    \item<4|only@4> One more CPU migration on Haswell, cost is negligible
+    \item<5|only@5> 8 more page-faults on Ivy Bridge, cost is negligible
+    \item<8|only@8> Same number of instructions executed
+    \item<9|only@9> Same number of branches
+    \item<10|only@10> 623808320 more mispredicted branches on Ivy Bridge
+    \item<10|only@10> 20 cycles per mispredicted branch @ ~3.4GHz = 4s
+    \item<11|only@11> Negligible difference in L1d loads
+    \item<12|only@12> 32802342 more misses on Ivy Bridge
+    \item<12|only@12> 10 cycles per L1 miss, assuming it hits L2 = \textless 1s
+\end{itemize}
+\end{minipage}
 % Ivy Bridge Profile
 %      34725.557061      task-clock (msec)         #    1.000 CPUs utilized          
 %             1,757      context-switches          #    0.051 K/sec                  
@@ -329,13 +380,128 @@ switch (opcode) {
 %        12,658,059      LLC-load-misses           #   69.62% of all LL-cache hits     (33.33%)
 %      34.734003622 seconds time elapsed
 
-\vspace{-5mm}
-\begin{lstlisting}[language=c, caption=Excerpt from PyEval\_EvalFrameEx]
-HoHoHo Merry christmas
+% Haswell profile
+%      24105.686437      task-clock (msec)         #    1.000 CPUs utilized          
+%             1,220      context-switches          #    0.051 K/sec                  
+%                 1      cpu-migrations            #    0.000 K/sec                  
+%            77,727      page-faults               #    0.003 M/sec                  
+%    79,856,590,321      cycles                    #    3.313 GHz                      (50.00%)
+%   196,279,702,821      instructions              #    2.46  insn per cycle           (62.50%)
+%    38,988,806,436      branches                  # 1617.411 M/sec                    (62.51%)
+%       148,049,799      branch-misses             #    0.38% of all branches          (62.51%)
+%    65,709,868,550      L1-dcache-loads           # 2725.907 M/sec                    (62.50%)
+%       190,642,933      L1-dcache-load-misses     #    0.29% of all L1-dcache hits    (25.00%)
+%        17,276,409      LLC-loads                 #    0.717 M/sec                    (24.99%)
+%        12,296,728      LLC-load-misses           #   71.18% of all LL-cache hits     (37.50%)
+%
+%      24.117095520 seconds time elapsed
+
+
+\end{frame}
+\begin{frame}[fragile]{DB 12 - Mispredicted branches (CC7)}
+
+\setlist{leftmargin=1mm,label=$\diamond$}
+\begin{lstlisting}[language=Python, caption=Mispredicted branches on Ivy Bridge - function annotation,
+                   linebackgroundcolor={\btLstHL<2->{3}}]
+Samples: 142K of event 'branch-misses:pp', Event count (approx.): 889919468
+Overhead  Command  Shared Object        Symbol
+  88.53%  python   libpython2.7.so.1.0  [.] PyEval_EvalFrameEx
+   5.81%  python   libpython2.7.so.1.0  [.] 0x00000000000477da
+   4.27%  python   libm-2.17.so         [.] __ieee754_log_avx
+   1.09%  python   libpython2.7.so.1.0  [.] PyBool_FromLong
+   0.03%  python   libpython2.7.so.1.0  [.] PyInt_FromLong
 \end{lstlisting}
 
+\vspace{-5mm}
+\begin{columns}[t]
+\begin{column}{0.45\textwidth}<3->
+\begin{lstlisting}[language=Python, caption=Assembly annotation on Ivy Bridge,
+                   linebackgroundcolor={\btLstHL<4->{4}}]
+          xor    %ecx,%ecx
+          mov    %rdx,%rbp
+          mov    (%rsi,%rdi,8),%rsi
+ 45.25%   jmpq   fffffffffff22300
+          lea    0x2(%r9),%rbx
+          movzbl -0x1(%rbx),%eax
+          movzbl -0x2(%rbx),%ecx
+\end{lstlisting}
+\end{column}
+\begin{column}{0.6\textwidth}<6->
+\begin{lstlisting}[language=Python, caption=Corresponding C code,
+                   linebackgroundcolor={\btLstHL<7->{4}}]
+#define FAST_DISPATCH() { \
+    if (!_Py_TracingPossible) { \
+        f->f_lasti = INSTR_OFFSET(); \
+        goto *opcode_targets[*next_instr++]; \
+    } \
+    goto fast_next_opcode;\
+}
+\end{lstlisting}
+
+\end{column}
+\end{columns}
+\begin{itemize}
+    \footnotesize
+    \item<5-> Actually a \textbf{jmp *rsi}
+    \item<8-> Dispatches next opcode to corresponding case branch without \textit{continue}. Other branch mispredictions are on the same FAST\_DISPATCH() macro.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{DB 12 - Mispredicted branches (SLC6)}
+
+\setlist{leftmargin=1mm,label=$\diamond$}
+\vspace{-5mm}
+\begin{columns}[t]
+\begin{column}{0.6\textwidth}
+\begin{lstlisting}[language=Python, caption=Assembly annotation on Ivy Bridge (SLC6),
+                   linebackgroundcolor={\btLstHL<2->{8}}]
+        movl   $0x2,0x58(%rsp)
+        jmpq   127
+        nop
+        lea    _PyUnicode_TypeRecords+0xc094,%rsi
+        mov    %r8d,%eax
+        movslq (%rsi,%rax,4),%rax
+        add    %rsi,%rax
+ 97.40  jmpq   ffffffca30b2f870
+        nop
+        cmpb   $0x7a,(%r14)
+        je     366
+        mov    _PyImport_DynLoadFiletab+0x318,%rax
+        mov    (%rax),%eax
+        mov    %eax,(%r8)
+        addl   $0x1,0x80(%r12)
+\end{lstlisting}
+\end{column}
+\begin{column}{0.4\textwidth}
+\begin{lstlisting}[language=Python, caption=Corresponding C code,
+                   linebackgroundcolor={\btLstHL<7->{4}}]
+/* Main switch on opcode */
+READ_TIMESTAMP(inst0);
+
+switch (opcode) {
+
+    case NOP:
+        goto fast_next_opcode;
+
+    case LOAD_FAST:
+        x = GETLOCAL(oparg);
+        if (x != NULL) {
+            Py_INCREF(x);
+            PUSH(x);
+            goto fast_next_opcode;
+        }
+\end{lstlisting}
+
+\end{column}
+\end{columns}
+\begin{itemize}
+    \footnotesize
+    \item<2-> Again indirect jump \textbf{jmp *rax}
+    \item<3-> FAST\_DISPATCH() not supported in Python 2.6.6, all 
+    mispredictions happen on switch statement
+\end{itemize}
 \end{frame}
 \backcover
 
 \end{document}
-
+    
