@@ -1,15 +1,19 @@
-\documentclass{beamer}
+\documentclass[xcolor=table]{beamer}
 \usepackage{beamerthemecern}
+\usepackage{booktabs}
+\usepackage{pgffor}
+\usepackage{lstlinebgrd}
 \usepackage{enumitem}
 \usepackage{caption}
 \usepackage{listings}
-\begin{document}
-\title{Understanding applications performance}
-\author{Marco Guerri}
-\date{\today}
 
 \definecolor{lightblue}{gray}{0.95}
 
+% Customize caption for listing removing "Listing X"
+\DeclareCaptionFormat{listing}{\colorbox{lightblue}{\parbox{\textwidth - 2mm}{#3}}}
+\captionsetup[lstlisting]{format=listing,font={scriptsize,sf},justification=centering}
+
+% Zebra colored listings
 \newcommand\realnumberstyle[1]{}
 
 \makeatletter
@@ -28,49 +32,94 @@
     \endgroup
 }
 \makeatother
+
+% Listing customization
 \lstset{
     language=Python,                % choose the language of the code
     basicstyle=\fontfamily{pcr}\tiny,       % the size of the fonts that are used for the code
     tabsize=2,
     captionpos=b,
-    numbers=left,
+    %numbers=left,
     stepnumber=1,
     numberstyle=\tiny,
     numbersep=5pt,
     frame=lines,
     escapeinside={£}{£},
     breaklines=true,
-    numberstyle=\zebra{lightblue}{white},
     keywordstyle=\color[rgb]{0,0,1},
     commentstyle=\color[rgb]{0.133,0.545,0.133},
     stringstyle=\color[rgb]{1,0,0}
 }
-\captionsetup[lstlisting]{font={scriptsize,sf}}
 
-\hypersetup{%
-  colorlinks=true,
-  linkbordercolor=blue,
-  pdfborderstyle={/S/U/W 0.5}
+\makeatletter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% \btIfInRange{number}{range list}{TRUE}{FALSE}
+%
+% Test in int number <number> is element of a (comma separated) list of ranges
+% (such as: {1,3-5,7,10-12,14}) and processes <TRUE> or <FALSE> respectively
+
+\newcount\bt@rangea
+\newcount\bt@rangeb
+
+\newcommand\btIfInRange[2]{%
+    \global\let\bt@inrange\@secondoftwo%
+    \edef\bt@rangelist{#2}%
+    \foreach \range in \bt@rangelist {%
+        \afterassignment\bt@getrangeb%
+        \bt@rangea=0\range\relax%
+        \pgfmathtruncatemacro\result{ ( #1 >= \bt@rangea) && (#1 <= \bt@rangeb) }%
+        \ifnum\result=1\relax%
+            \breakforeach%
+            \global\let\bt@inrange\@firstoftwo%
+        \fi%
+    }%
+    \bt@inrange%
 }
+\newcommand\bt@getrangeb{%
+    \@ifnextchar\relax%
+        {\bt@rangeb=\bt@rangea}%
+        {\@getrangeb}%
+}
+\def\@getrangeb-#1\relax{%
+    \ifx\relax#1\relax%
+        \bt@rangeb=100000%   \maxdimen is too large for pgfmath
+    \else%
+        \bt@rangeb=#1\relax%
+    \fi%
+}
+
+\newcommand<>{\btLstHL}[1]{%
+  \only#2{\btIfInRange{\value{lstnumber}}{#1}
+        {\color{lightgray}\def\lst@linebackgroundcolor{\color@block}}
+        {\def\lst@linebgrdcmd####1####2####3{}}}%
+}%
+\makeatother
+
+\begin{document}
+\title{Understanding applications performance}
+\author{Marco Guerri}
+\date{\today}
 
 \frontcover
 \frame{\titlepage}
 \frame{\tableofcontents}
-
 \section{Dirac Benchmark 2012}
 
 \begin{frame}[fragile]{Dirac Benchmark 12}
-\begin{columns}[T]
-    \begin{column}{0.50\textwidth}
-        \setlist{leftmargin=1mm,label=$\diamond$}
-        \begin{itemize}
+    \begin{columns}[t]
+        \begin{column}{0.5\textwidth}
+            \setlist{leftmargin=1mm,label=$\diamond$}
+            \begin{itemize}[noitemsep,topsep=0pt]
             \small
-            \item Python benchmark, duration between 1 and 2 minutes
-            \item Basically random.normalvariate
-            \item Excellent predictor of performance of  
-                  LHCb Monte Carlo jobs
-        \end{itemize}
-        \begin{lstlisting}[language=Python, caption=Source code avilable on \href{https://github.com/DIRACGrid/DB12}{github}]
+                \item Python benchmark, basically \textit{random.normalvariate()}
+                 \item Considered an excellent predictor of performance of
+                          LHCb MC jobs
+            \end{itemize}
+            \hypersetup{colorlinks=true, linkbordercolor=red, pdfborderstyle={/S/U/W 0.2}}
+            \begin{lstlisting}[language=Python, caption=Source code avilable on
+                                \href{https://github.com/DIRACGrid/DB12}{github},
+                                linebackgroundcolor={\btLstHL<2>{6}}]
 for i in range( iterations + 1):
     if i == 1:
       start = os.times()
@@ -81,23 +130,210 @@ for i in range( iterations + 1):
       m2 += t * t
       p += t
       p2 += t * t
-        \end{lstlisting}
-        \setlist{leftmargin=1mm,label=$\diamond$}
-        \begin{itemize}
-            \small
-            \item Python benchmark, \textless2 minutes duration
-            \item Basically random.normalvariate
-            \item Excellent predictor of performance of  
-                  LHCb Monte Carlo jobs
-        \end{itemize}
-    \end{column}
-    \begin{column}{0.50\textwidth}
+            \end{lstlisting}
+            \hypersetup{colorlinks=true, linkbordercolor=lightblue, pdfborderstyle={}}
+        \end{column}
+    \begin{column}{0.5\textwidth}
+\def\arraystretch{1.2}
+\arrayrulewidth=0.4pt
+
+\begin{table}
+\vspace{-7mm}
+\scriptsize
+\begin{tabular}{ l |  c |  c  }
+   \multicolumn{3}{ c }{Hardware configuration} \\
+   \hline
+   & \textbf{Ivy Bridge} & \textbf{Haswell}  \\
+  \hline
+  CPU & E5-2650v2  & E5-2640v3 \\
+%   & 8c/16t & 8c/16t  \\
+%   & 2.6/3.4  & 2.6/3.4 \\
+  RAM  & 64 GiB DDR3 & 128 GiB DDR4 \\
+  OS & CentOS 7.3 & CentOS 7.3 \\
+  \hline
+\end{tabular}
+\end{table}
+
+\vspace{-5mm}
+\begin{table}
+
+\def\fourthrowcolor{}
+\only<3>{\def\fourthrowcolor{\rowcolor{lightgray}}}
+
+\scriptsize
+\begin{tabular}{ l | c |  c |  c }
+   \multicolumn{4}{ c }{Benchmark Results} \\
+   \hline
+   & \textbf{IB} & \textbf{HSW} & Speedup \\
+  \hline
+    $HS06_{32 t}$ & 350.19 & 360.87 & +3\%\\
+    $HS06_{1 t}$ & 26.35 & 28.54 & +8\% \\
+    $DB12_{32 t}$ & 10.98 & 12.27 & +12\% \\
+\fourthrowcolor $DB12_{1 t}$ & 20.99 & 30.17 & +44\% \\
+\hline
+\end{tabular}
+\end{table}
+
     \end{column}
 \end{columns}
 \end{frame}
 
-\section{ATLAS Kit Validation}
-\begin{frame}[fragile]{Another frame}
+\begin{frame}[fragile]{DB 12 - Functions profile}
+\begin{lstlisting}[language=Python, caption=Functions profile on Ivy Bridge,
+                   linebackgroundcolor={%
+                        \btLstHL<2>{2}%
+                        \btLstHL<3>{7}}]
+#rank % cumulative%  function-name             image-name
+0:  40.065  40.065  PyEval_EvalFrameEx        /lib64/libpython2.7.so.1.0
+1:  10.345  50.410  _Py_add_one_to_index_C    /lib64/libpython2.7.so.1.0
+2:   6.474  56.884  PyFloat_GetInfo           /lib64/libpython2.7.so.1.0
+3:   3.743  60.627  _PyLong_Init              /lib64/libpython2.7.so.1.0
+4:   3.600  64.227  PyFloat_FromDouble        /lib64/libpython2.7.so.1.0
+5:   3.530  67.756  .text                     /usr/lib64/.../_randommodule.so
+6:   3.089  70.845  Py_UniversalNewlineFread  /lib64/libpython2.7.so.1.0
+7:   2.665  73.510  __ieee754_log_avx         /lib64/libm.so.6
+8:   2.554  76.065  PyDict_GetItem            /lib64/libpython2.7.so.1.0
+9:   2.273  78.337  _PyFloat_Unpack8          /lib64/libpython2.7.so.1.0
+\end{lstlisting}
+
+\vspace{-1mm}
+\begin{lstlisting}[language=Python, caption=Functions profile on Haswell,
+                   linebackgroundcolor={%
+                        \btLstHL<2>{2}%
+                        \btLstHL<3>{7}}]
+#rank % cumulative%  function-name             image-name
+0:  40.061  40.061  PyEval_EvalFrameEx        /lib64/libpython2.7.so.1.0
+1:  10.344  50.406  _Py_add_one_to_index_C    /lib64/libpython2.7.so.1.0
+2:   6.474  56.879  PyFloat_GetInfo           /lib64/libpython2.7.so.1.0
+3:   3.743  60.622  _PyLong_Init              /lib64/libpython2.7.so.1.0
+4:   3.599  64.222  PyFloat_FromDouble        /lib64/libpython2.7.so.1.0
+5:   3.529  67.751  .text                     /usr/lib64/.../_randommodule.so
+6:   3.089  70.840  Py_UniversalNewlineFread  /lib64/libpython2.7.so.1.0
+7:   2.665  73.504  __ieee754_log_avx         /lib64/libm.so.6
+8:   2.554  76.059  PyDict_GetItem            /lib64/libpython2.7.so.1.0
+9:   2.273  78.331  _PyFloat_Unpack8          /lib64/libpython2.7.so.1.0
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]{DB 12 - PyEval\_EvalFramEx}
+
+\begin{columns}[t]
+    
+\begin{column}{0.5\textwidth}
+\vspace{-5mm}
+\setlist{leftmargin=1mm,label=$\diamond$}
+\begin{itemize}
+    \small
+    \item Python source code is compiled into bytecode
+    \item Bytecode is executed by interpreter (CPython)
+\end{itemize}
+\begin{lstlisting}[language=Python, caption=Function disassembly,
+                   linebackgroundcolor={\btLstHL<2>{1-5}%
+                                        \btLstHL<3>{6-17}%
+                                        \btLstHL<3>{6-17}%
+                                        \btLstHL<4>{12}}]
+>>> def myfunc():
+...     a = 120
+...     b = a*10
+...     return b
+... 
+>>> import dis
+>>> dis.dis(myfunc)
+  2           0 LOAD_CONST         1 (120)
+              3 STORE_FAST         0 (a)
+
+  3           6 LOAD_FAST          0 (a)
+              9 LOAD_CONST         2 (10)
+             12 BINARY_MULTIPLY     
+             13 STORE_FAST         1 (b)
+
+  4          16 LOAD_FAST          1 (b)
+             19 RETURN_VALUE  
+\end{lstlisting}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\vspace{-5mm}
+\begin{lstlisting}[language=c, caption=Excerpt from PyEval\_EvalFrameEx,
+                   linebackgroundcolor={\btLstHL<4>{8}}]
+switch (opcode) {
+    case NOP:
+        <NOP Instruction>
+        break;
+    case LOAD_FAST:
+        <LOAD_FAST Instruction>
+        break;
+    case LOAD_CONST:
+        <LOAD_CONST Instruction>
+        break;
+    case STORE_FAST:
+        <STORE_FAST Instruction>
+        break;
+    case POP_TOP:
+        <POP_TOP Instruction>
+        break;
+    case ROT_TWO:
+        <ROT_TWO Instruction>
+        break;
+    [...]
+    case UNARY_CONVERT:
+        <UNARY_CONVERT Instruction>
+        break;
+    [..]
+}
+\end{lstlisting}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{DB 12 - Profiling}
+
+\begin{table}
+\scriptsize
+\begin{tabular}{ l |  r |  c | c | c| c | }
+   \multicolumn{6}{ c }{Performance statistics} \\
+   \hline
+   & \textbf{Ivy Bridge} & \% & \textbf{Haswell} & \%  & $\Delta$ \\
+    \hline
+  task-clock & 34725.557061  & & & \\
+  context-switches & 1,757  & & & \\
+  cpu-migrations & 0  & & & \\
+  page-faults & 77,735  & & & \\
+  cycles & 115,880,566,912  & & & \\
+  stalled-cycles-frontend & 33,935,812,197  & & & \\
+  instructions & 196,423,070,931  & & & \\
+  branches & 39,007,221,715  & & & \\
+  branch-misses & 771,858,119  & & & \\
+  L1-dcache-loads & 65,738,912,645  & & & \\
+  L1-dcache-load-misses & 223,445,275  & & & \\
+  LLC-loads & 18,182,616  & & & \\
+  \hline
+\end{tabular}
+\end{table}
+
+% Ivy Bridge Profile
+%      34725.557061      task-clock (msec)         #    1.000 CPUs utilized          
+%             1,757      context-switches          #    0.051 K/sec                  
+%                 0      cpu-migrations            #    0.000 K/sec                  
+%            77,735      page-faults               #    0.002 M/sec                  
+%   115,880,566,912      cycles                    #    3.337 GHz                      (44.45%)
+%    33,935,812,197      stalled-cycles-frontend   #   29.29% frontend cycles idle     (44.45%)
+%   196,423,070,931      instructions              #    1.70  insn per cycle         
+%                                                  #    0.17  stalled cycles per insn  (55.56%)
+%    39,007,221,715      branches                  # 1123.300 M/sec                    (55.56%)
+%       771,858,119      branch-misses             #    1.98% of all branches          (55.56%)
+%    65,738,912,645      L1-dcache-loads           # 1893.099 M/sec                    (44.44%)
+%       223,445,275      L1-dcache-load-misses     #    0.34% of all L1-dcache hits    (22.22%)
+%        18,182,616      LLC-loads                 #    0.524 M/sec                    (22.22%)
+%        12,658,059      LLC-load-misses           #   69.62% of all LL-cache hits     (33.33%)
+%      34.734003622 seconds time elapsed
+
+\vspace{-5mm}
+\begin{lstlisting}[language=c, caption=Excerpt from PyEval\_EvalFrameEx]
+HoHoHo Merry christmas
+\end{lstlisting}
+
 \end{frame}
 \backcover
 
