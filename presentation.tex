@@ -1,0 +1,105 @@
+\documentclass{beamer}
+\usepackage{beamerthemecern}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{listings}
+\begin{document}
+\title{Understanding applications performance}
+\author{Marco Guerri}
+\date{\today}
+
+\definecolor{lightblue}{gray}{0.95}
+
+\newcommand\realnumberstyle[1]{}
+
+\makeatletter
+\newcommand{\zebra}[3]{%
+    {\realnumberstyle{#3}}%
+    \begingroup
+    \lst@basicstyle
+    \ifodd\value{lstnumber}%
+        \color{#1}%
+    \else
+        \color{#2}%
+    \fi
+        \rlap{\hspace*{\lst@numbersep}%
+        \color@block{\linewidth}{\ht\strutbox}{\dp\strutbox}%
+        }%
+    \endgroup
+}
+\makeatother
+\lstset{
+    language=Python,                % choose the language of the code
+    basicstyle=\fontfamily{pcr}\tiny,       % the size of the fonts that are used for the code
+    tabsize=2,
+    captionpos=b,
+    numbers=left,
+    stepnumber=1,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    frame=lines,
+    escapeinside={£}{£},
+    breaklines=true,
+    numberstyle=\zebra{lightblue}{white},
+    keywordstyle=\color[rgb]{0,0,1},
+    commentstyle=\color[rgb]{0.133,0.545,0.133},
+    stringstyle=\color[rgb]{1,0,0}
+}
+\captionsetup[lstlisting]{font={scriptsize,sf}}
+
+\hypersetup{%
+  colorlinks=true,
+  linkbordercolor=blue,
+  pdfborderstyle={/S/U/W 0.5}
+}
+
+\frontcover
+\frame{\titlepage}
+\frame{\tableofcontents}
+
+\section{Dirac Benchmark 2012}
+
+\begin{frame}[fragile]{Dirac Benchmark 12}
+\begin{columns}[T]
+    \begin{column}{0.50\textwidth}
+        \setlist{leftmargin=1mm,label=$\diamond$}
+        \begin{itemize}
+            \small
+            \item Python benchmark, duration between 1 and 2 minutes
+            \item Basically random.normalvariate
+            \item Excellent predictor of performance of  
+                  LHCb Monte Carlo jobs
+        \end{itemize}
+        \begin{lstlisting}[language=Python, caption=Source code avilable on \href{https://github.com/DIRACGrid/DB12}{github}]
+for i in range( iterations + 1):
+    if i == 1:
+      start = os.times()
+
+    for _j in xrange( n ):
+      t = random.normalvariate( 10, 1 )
+      m += t
+      m2 += t * t
+      p += t
+      p2 += t * t
+        \end{lstlisting}
+        \setlist{leftmargin=1mm,label=$\diamond$}
+        \begin{itemize}
+            \small
+            \item Python benchmark, \textless2 minutes duration
+            \item Basically random.normalvariate
+            \item Excellent predictor of performance of  
+                  LHCb Monte Carlo jobs
+        \end{itemize}
+    \end{column}
+    \begin{column}{0.50\textwidth}
+    \end{column}
+\end{columns}
+\end{frame}
+
+\section{ATLAS Kit Validation}
+\begin{frame}[fragile]{Another frame}
+\end{frame}
+\backcover
+
+\end{document}
+
