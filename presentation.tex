@@ -167,7 +167,7 @@
             \hypersetup{colorlinks=true, linkbordercolor=red, pdfborderstyle={/S/U/W 0.2}}
             \begin{lstlisting}[language=Python, caption=Source code avilable on
                                 \href{https://github.com/DIRACGrid/DB12}{github},
-                                linebackgroundcolor={\btLstHL<2>{6}}, numbers=none]
+                                 numbers=none]
 for i in range( iterations + 1):
     if i == 1:
       start = os.times()
@@ -185,44 +185,45 @@ for i in range( iterations + 1):
 \def\arraystretch{1.2}
 \arrayrulewidth=0.4pt
 
-\begin{table}
-\vspace{-7mm}
-\scriptsize
-\begin{tabular}{ l |  c |  c  }
-   \multicolumn{3}{ c }{Hardware configuration} \\
-   \hline
-   & \textbf{Ivy Bridge} & \textbf{Haswell}  \\
-  \hline
-  CPU & E5-2650v2  & E5-2640v3 \\
-%   & 8c/16t & 8c/16t  \\
-%   & 2.6/3.4  & 2.6/3.4 \\
-  RAM  & 64 GiB DDR3 & 128 GiB DDR4 \\
-  OS & CentOS 7.3 & CentOS 7.3 \\
-  \hline
-\end{tabular}
-\end{table}
-
-\vspace{-5mm}
+\only<2->{
 \begin{table}
 
 \def\fourthrowcolor{}
-\only<3>{\def\fourthrowcolor{\rowcolor{lightgray}}}
+\def\fifthrowcolor{}
+\def\sixthrowcolor{}
+\def\seventhrowcolor{}
+\only<4>{\def\fourthrowcolor{\rowcolor{lightgray}}}
+\only<5>{\def\fifthrowcolor{\rowcolor{lightgray}}}
+\only<6>{\def\sixthrowcolor{\rowcolor{lightgray}}}
+\only<7>{\def\seventhrowcolor{\rowcolor{lightgray}}}
 
-\scriptsize
-\begin{tabular}{ l | c |  c |  c }
-   \multicolumn{4}{ c }{Benchmark Results} \\
+\tiny
+\begin{tabular}{ l |  c |  c   }
+   \multicolumn{3}{ c }{Hardware configuration} \\
    \hline
-   & \textbf{Ivy Bridge} & \textbf{Haswell} & $\Delta$  \\
+   & \textbf{Ivy Bridge} & \textbf{Haswell} \\
   \hline
-    $HS06_{32 t}$ & 350.19 & 360.87 & +3\%\\
-    $HS06_{1 t}$ & 26.35 & 28.54 & +8\% \\
-    $DB12_{32 t}$ & 10.98 & 12.27 & +12\% \\
-    \fourthrowcolor $DB12_{1 t}$ & 20.99 & 30.17 & +44\% \\
-\hline
+  CPU & E5-2650v2  & E5-2640v3  \\
+  Core/Threads & 8/16 & 8/16  \\
+  Base/Turbo CLK & 2.6/3.4  & 2.6/3.4  \\
+  RAM  & 64 GiB DDR3 & 128 GiB DDR4 \\
+  OS & CentOS 7.3 & CentOS 7.3  \\
+   \multicolumn{3}{ c }{Benchmark results} \\
+    \hline
+    \fourthrowcolor $HS06_{32 t}$ & 350.19 & 360.87 \\
+    \fifthrowcolor $HS06_{1 t}$ & 26.35 & 28.54  \\
+    \sixthrowcolor $DB12_{32 t}$ & 10.98 & 12.27 \\
+    \seventhrowcolor $DB12_{1 t}$ & 20.99 & 30.17 \\
+  \hline
 \end{tabular}
 \end{table}
+}
 
-    \end{column}
+% Additional step for impressive zoom-in
+\only<3>{}
+
+
+\end{column}
 \end{columns}
 \end{frame}
 
