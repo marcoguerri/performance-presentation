@@ -1,3 +1,21 @@
+%
+% Copyright (C) 2017 CERN
+%
+% Author: Marco Guerri
+%
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>
+%
 \documentclass[xcolor=table]{beamer}
 \usepackage{beamerthemecern}
 \usepackage{booktabs}
@@ -6,6 +24,10 @@
 \usepackage{enumitem}
 \usepackage{caption}
 \usepackage{listings}
+\usepackage{tikz}
+\usepackage{filecontents}
+\usepackage{pgfplots}
+\usetikzlibrary{arrows,shapes,calc}
 
 \definecolor{lightblue}{gray}{0.95}
 
@@ -15,9 +37,17 @@
 
 % Zebra colored listings
 \newcommand\realnumberstyle[1]{}
-
-
 \makeatletter
+
+% Wider command
+\newcommand\Wider[2][3em]{%
+\makebox[\linewidth][c]{%
+  \begin{minipage}{\dimexpr\textwidth+#1\relax}
+  \raggedright#2
+  \end{minipage}%
+  }%
+}
+
 \newcommand{\zebra}[3]{%
     {\realnumberstyle{#3}}%
     \begingroup
@@ -40,12 +70,12 @@
     basicstyle=\fontfamily{pcr}\tiny,       % the size of the fonts that are used for the code
     tabsize=2,
     captionpos=b,
-    %numbers=left,
+    numbers=left,
     stepnumber=1,
     numberstyle=\tiny,
     numbersep=5pt,
     frame=lines,
-    escapeinside={£}{£},
+    escapeinside={|@}{@|},
     breaklines=true,
     keywordstyle=\color[rgb]{0,0,1},
     commentstyle=\color[rgb]{0.133,0.545,0.133},
@@ -53,13 +83,30 @@
 }
 
 \makeatletter
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% tikz tools
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\tikzset{
+    invisible/.style={opacity=0},
+    visible on/.style={alt={#1{}{invisible}}},
+    alt/.code args={<#1>#2#3}{%
+      \alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}} % \pgfkeysalso doesn't change the path
+    },
+  }
+
+\newcommand{\tikzmark}[2]{%
+     \tikz[overlay,remember picture] \node[text=black,
+           inner sep=0pt] (#1) {#2};}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % \btIfInRange{number}{range list}{TRUE}{FALSE}
 %
 % Test in int number <number> is element of a (comma separated) list of ranges
 % (such as: {1,3-5,7,10-12,14}) and processes <TRUE> or <FALSE> respectively
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcount\bt@rangea
 \newcount\bt@rangeb
 
@@ -120,7 +167,7 @@
             \hypersetup{colorlinks=true, linkbordercolor=red, pdfborderstyle={/S/U/W 0.2}}
             \begin{lstlisting}[language=Python, caption=Source code avilable on
                                 \href{https://github.com/DIRACGrid/DB12}{github},
-                                linebackgroundcolor={\btLstHL<2>{6}}]
+                                linebackgroundcolor={\btLstHL<2>{6}}, numbers=none]
 for i in range( iterations + 1):
     if i == 1:
       start = os.times()
@@ -217,10 +264,38 @@ for i in range( iterations + 1):
 
 \end{frame}
 
-\begin{frame}[fragile]{DB 12 - PyEval\_EvalFramEx}
+\begin{frame}[t,fragile]
+\frametitle{DB 12 - Instructions breakdown}
+\begin{minipage}[t][2cm][t]{\textwidth}
+\vspace{-0.5cm}
+\begin{lstlisting}[language=Python, linebackgroundcolor={%
+                                    \btLstHL<2-6>{2}%
+                                    \btLstHL<7>{7}%
+                                    \btLstHL<8>{9}}]
+#rank % cumulative%  function-name             image-name
+0:  40.065  40.065  PyEval_EvalFrameEx        /lib64/libpython2.7.so.1.0
+1:  10.345  50.410  _Py_add_one_to_index_C    /lib64/libpython2.7.so.1.0
+2:   6.474  56.884  PyFloat_GetInfo           /lib64/libpython2.7.so.1.0
+3:   3.743  60.627  _PyLong_Init              /lib64/libpython2.7.so.1.0
+4:   3.600  64.227  PyFloat_FromDouble        /lib64/libpython2.7.so.1.0
+5:   3.530  67.756  .text                     /usr/lib64/.../_randommodule.so
+6:   3.089  70.845  Py_UniversalNewlineFread  /lib64/libpython2.7.so.1.0
+7:   2.665  73.510  __ieee754_log_avx         /lib64/libm.so.6
+\end{lstlisting}
+\end{minipage}
 
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.23]<2-6>{images/PyEval_EvalFrameEx.png}
+\includegraphics[scale=0.23]<7>{images/_randommodule.png}
+\includegraphics[scale=0.23]<8>{images/__ieee754_log_avx.png}
+\end{center}
+\end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{DB 12 - PyEval\_EvalFramEx analysis}
 \begin{columns}[t]
-    
+
 \begin{column}{0.5\textwidth}
 \vspace{-5mm}
 \setlist{leftmargin=1mm,label=$\diamond$}
@@ -231,14 +306,13 @@ for i in range( iterations + 1):
 \end{itemize}
 \begin{lstlisting}[language=Python, caption=Function disassembly,
                    linebackgroundcolor={\btLstHL<2>{1-5}%
-                                        \btLstHL<3>{6-17}%
-                                        \btLstHL<3>{6-17}%
-                                        \btLstHL<4>{12}}]
+                                        \btLstHL<3->{6-17}%
+                                        \btLstHL<5>{12}}]
 >>> def myfunc():
 ...     a = 120
 ...     b = a*10
 ...     return b
-... 
+...
 >>> import dis
 >>> dis.dis(myfunc)
   2           0 LOAD_CONST         1 (120)
@@ -246,18 +320,18 @@ for i in range( iterations + 1):
 
   3           6 LOAD_FAST          0 (a)
               9 LOAD_CONST         2 (10)
-             12 BINARY_MULTIPLY     
+             12 BINARY_MULTIPLY
              13 STORE_FAST         1 (b)
 
   4          16 LOAD_FAST          1 (b)
-             19 RETURN_VALUE  
+             19 RETURN_VALUE
 \end{lstlisting}
 \end{column}
 
-\begin{column}{0.5\textwidth}
+\begin{column}{0.5\textwidth}<4->
 \vspace{-5mm}
 \begin{lstlisting}[language=c, caption=Excerpt from PyEval\_EvalFrameEx,
-                   linebackgroundcolor={\btLstHL<4>{8}}]
+                   linebackgroundcolor={\btLstHL<5->{8}}]
 switch (opcode) {
     case NOP:
         <NOP Instruction>
@@ -348,7 +422,7 @@ switch (opcode) {
     \small
     % Why the first item is not vertically aligned?
     \item<2|only@2> \vspace{1.01mm} Runtime in milliseconds: 10s difference
-    \item<2|only@2> \vspace{1.01mm} Looking for architectural explanation 
+    \item<2|only@2> \vspace{1.01mm} Looking for architectural explanation
                                     behind additional speedup
     \item<3|only@3> Context switches most likeley due to timer softirq
     \item<3|only@3> 500 more context switches on Ivy Bridge, cost is negligible
@@ -364,13 +438,13 @@ switch (opcode) {
 \end{itemize}
 \end{minipage}
 % Ivy Bridge Profile
-%      34725.557061      task-clock (msec)         #    1.000 CPUs utilized          
-%             1,757      context-switches          #    0.051 K/sec                  
-%                 0      cpu-migrations            #    0.000 K/sec                  
-%            77,735      page-faults               #    0.002 M/sec                  
+%      34725.557061      task-clock (msec)         #    1.000 CPUs utilized
+%             1,757      context-switches          #    0.051 K/sec
+%                 0      cpu-migrations            #    0.000 K/sec
+%            77,735      page-faults               #    0.002 M/sec
 %   115,880,566,912      cycles                    #    3.337 GHz                      (44.45%)
 %    33,935,812,197      stalled-cycles-frontend   #   29.29% frontend cycles idle     (44.45%)
-%   196,423,070,931      instructions              #    1.70  insn per cycle         
+%   196,423,070,931      instructions              #    1.70  insn per cycle
 %                                                  #    0.17  stalled cycles per insn  (55.56%)
 %    39,007,221,715      branches                  # 1123.300 M/sec                    (55.56%)
 %       771,858,119      branch-misses             #    1.98% of all branches          (55.56%)
@@ -381,10 +455,10 @@ switch (opcode) {
 %      34.734003622 seconds time elapsed
 
 % Haswell profile
-%      24105.686437      task-clock (msec)         #    1.000 CPUs utilized          
-%             1,220      context-switches          #    0.051 K/sec                  
-%                 1      cpu-migrations            #    0.000 K/sec                  
-%            77,727      page-faults               #    0.003 M/sec                  
+%      24105.686437      task-clock (msec)         #    1.000 CPUs utilized
+%             1,220      context-switches          #    0.051 K/sec
+%                 1      cpu-migrations            #    0.000 K/sec
+%            77,727      page-faults               #    0.003 M/sec
 %    79,856,590,321      cycles                    #    3.313 GHz                      (50.00%)
 %   196,279,702,821      instructions              #    2.46  insn per cycle           (62.50%)
 %    38,988,806,436      branches                  # 1617.411 M/sec                    (62.51%)
@@ -401,7 +475,7 @@ switch (opcode) {
 \begin{frame}[fragile]{DB 12 - Mispredicted branches (CC7)}
 
 \setlist{leftmargin=1mm,label=$\diamond$}
-\begin{lstlisting}[language=Python, caption=Mispredicted branches on Ivy Bridge - function annotation,
+\begin{lstlisting}[language=Python, caption=Mispredicted branches on Ivy Bridge - function annotation (SLC6),
                    linebackgroundcolor={\btLstHL<2->{3}}]
 Samples: 142K of event 'branch-misses:pp', Event count (approx.): 889919468
 Overhead  Command  Shared Object        Symbol
@@ -447,18 +521,25 @@ Overhead  Command  Shared Object        Symbol
 \end{itemize}
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Mispredicted branches on SLC6
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile]{DB 12 - Mispredicted branches (SLC6)}
-
+\setlist{leftmargin=1mm,label=$\diamond$}
+\begin{lstlisting}[language=Python, caption=Mispredicted branches on Ivy Bridge - function annotation,
+                   linebackgroundcolor={\btLstHL<2->{3}}]
+Samples: 289K of event 'branch-misses:pp', Event count (approx.): 1276562725
+Overhead  Command  Shared Object        Symbol
+  84.30%  python   libpython2.6.so.1.0  [.] PyEval_EvalFrameEx
+   4.06%  python   libpython2.6.so.1.0  [.] 0x0000000000045510
+   3.25%  python   libm-2.12.so         [.] __ieee754_log
+\end{lstlisting}
 \setlist{leftmargin=1mm,label=$\diamond$}
 \vspace{-5mm}
 \begin{columns}[t]
 \begin{column}{0.6\textwidth}
 \begin{lstlisting}[language=Python, caption=Assembly annotation on Ivy Bridge (SLC6),
-                   linebackgroundcolor={\btLstHL<2->{8}}]
-        movl   $0x2,0x58(%rsp)
-        jmpq   127
-        nop
-        lea    _PyUnicode_TypeRecords+0xc094,%rsi
+                   linebackgroundcolor={\btLstHL<3->{4}}]
         mov    %r8d,%eax
         movslq (%rsi,%rax,4),%rax
         add    %rsi,%rax
@@ -466,15 +547,17 @@ Overhead  Command  Shared Object        Symbol
         nop
         cmpb   $0x7a,(%r14)
         je     366
-        mov    _PyImport_DynLoadFiletab+0x318,%rax
-        mov    (%rax),%eax
-        mov    %eax,(%r8)
-        addl   $0x1,0x80(%r12)
 \end{lstlisting}
+\begin{itemize}
+    \footnotesize
+    \item<4-> Again indirect jump \textbf{jmp *rax}
+    \item<6-> FAST\_DISPATCH() not supported in Python 2.6.6, all
+    mispredictions happen on switch statement
+\end{itemize}
 \end{column}
 \begin{column}{0.4\textwidth}
-\begin{lstlisting}[language=Python, caption=Corresponding C code,
-                   linebackgroundcolor={\btLstHL<7->{4}}]
+\begin{lstlisting}[language=c, caption=Corresponding C code,
+                   linebackgroundcolor={\btLstHL<5->{4}}]
 /* Main switch on opcode */
 READ_TIMESTAMP(inst0);
 
@@ -494,14 +577,123 @@ switch (opcode) {
 
 \end{column}
 \end{columns}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Reproducing mispredicted branches
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{DB 12 - Synthetic benchmark}
+\setlist{leftmargin=1mm,label=$\diamond$}
+\vspace{-5mm}
+\begin{columns}[t]
+\begin{column}{0.6\textwidth}
+\begin{lstlisting}[language=Python, caption=Synthetitc benchmark - indirect branch prediction,
+                   linebackgroundcolor={\btLstHL<2>{1-14}%
+                                        \btLstHL<3->{16-24}}]
+#define CASE(N) \
+            case N: \
+                flag[N] = N; \
+                break;
+#define CASE2(N) \
+            CASE(N) \
+            CASE(N+1)
+#define CASE4(N) \
+            CASE2(N) \
+            CASE2(N+2)
+[...]
+#define CASE4096(N) \
+            CASE2048(N) \
+            CASE2048(N+2048)
+[...]
+while(1) {
+    if (i > 0x2FFFFFFF)
+       break;
+    opcode = sequence[i % sequence_len];
+    switch(opcode) {
+        CASE4096(0)
+    }
+    i++;
+}
+\end{lstlisting}
+\end{column}
+\begin{column}{0.4\textwidth}
+\begin{lstlisting}[language=c, caption=Sequential vs Random opcode, numbers=none]
+|@\tikzmark{one}{}@|case1:
+    flag[1] = [1];
+    break;
+|@\tikzmark{two}{}@|case2:|@\tikzmark{two_right}{}@|
+    flag[2] = [2];
+    break;
+|@\tikzmark{three}{}@|case3:|@\tikzmark{three_right}{}@|
+    flag[3] = [3];
+    break;
+|@\tikzmark{four}{}@|case4:|@\tikzmark{four_right}{}@|
+    flag[4] = [4];
+    break;
+|@\tikzmark{five}{}@|case5:|@\tikzmark{five_right}{}@|
+    flag[5] = [5];
+    break;
+|@
+\begin{tikzpicture}[overlay,remember picture]
+    \onslide<4-7>{\draw[-stealth, thick, red] (one) to [bend right=70] (two);}
+    \onslide<5-7>{\draw[-stealth, thick, red] (two) to [bend right=70] (three);}
+    \onslide<6-7>{\draw[-stealth, thick, red] (three) to [bend right=70] (four);}
+    \onslide<7>{\draw[-stealth, thick, red] (four) to [bend right=70] (five);}
+    \onslide<8->{\draw[-stealth, thick, blue] (one) to [bend right=30] (five);}
+    \onslide<9->{\draw[-stealth, thick, blue] (five_right) to [bend right=30] (three_right);}
+    \onslide<10->{\draw[-stealth, thick, blue] (three) to [bend left=30] (two);}
+    \onslide<11->{\draw[-stealth, thick, blue] (two_right) to [bend left=30] (four_right);}
+\end{tikzpicture}
+ @|
+\end{lstlisting}
+
+\onslide<12->{\footnotesize Random, sequence len 256}
 \begin{itemize}
     \footnotesize
-    \item<2-> Again indirect jump \textbf{jmp *rax}
-    \item<3-> FAST\_DISPATCH() not supported in Python 2.6.6, all 
-    mispredictions happen on switch statement
+    \item<13-> Ivy Bridge: 11.3s, 10\% misses
+    \item<14-> Haswell: 4.5s, 0.0\% misses
 \end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Branch prediction mechanisms
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{DB 12 - Branch prediction perf}
+\pgfplotsset{xlabel style={font=\scriptsize},
+             ylabel style={font=\scriptsize},
+             yticklabel style={font=\tiny},
+             xticklabel style={font=\tiny,rotate=0},
+             legend style={at={(0.98,0.2)}, font=\sffamily\tiny},
+}
+\pgfplotstableread{branch_random_haswell.data}{\pistonkinetics}
+\pgfplotstableread{branch_sequential_haswell.data}{\pistonkinetics}
+\begin{center}
+\begin{tikzpicture}[scale=1]
+
+\begin{axis}[xtick={0,256,512,1024,2048},
+             grid=both,minor tick num=1,
+             ylabel=Misprediction rate (\%),
+             xlabel=Opcode sequence length,
+              legend entries={Haswell random, Haswell sequential, Ivy Bridge random, Ivy Bridge sequential}]
+
+\addplot [black, thin, fill opacity=0.2,visible on=<2->] table [x={len}, y={mispredictions_random_haswell}] {\pistonkinetics};
+\addplot [red, thin, fill opacity=0.2,visible on=<5->] table [x={len}, y={mispredictions_sequential_haswell}] {\pistonkinetics};
+
+\node[anchor=west] (source) at (axis cs:256,3.5){};
+\node (destination) at (axis cs:512,0.5){};
+\node (destination2) at (axis cs:360,0.3){};
+\only<3>{\draw[-stealth, thick, black] (source)--(destination);}
+\only<4>{\draw[-stealth, thick, black] (source)--(destination2);}
+
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \end{frame}
 \backcover
 
 \end{document}
-    
+
