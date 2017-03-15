@@ -21,6 +21,7 @@
 \usepackage{booktabs}
 \usepackage{pgffor}
 \usepackage{lstlinebgrd}
+\usepackage[export]{adjustbox}
 \usepackage{enumitem}
 \usepackage{caption}
 \usepackage{listings}
@@ -677,11 +678,13 @@ fast_next_opcode:
 \begin{columns}[t]
 \begin{column}{0.6\textwidth}
 \begin{lstlisting}[language=Python, caption=Synthetitc benchmark - indirect branch prediction,
-                   linebackgroundcolor={\btLstHL<2>{1-14}%
-                                        \btLstHL<3->{16-24}}]
+                   linebackgroundcolor={\btLstHL<2>{1-16}%
+                                        \btLstHL<3->{18-25}}]
 #define CASE(N) \
             case N: \
-                flag[N] = N; \
+                fib_n = fib_1 + fib_2; \
+                fib_2 = fib_1; \
+                fib_1 = fib_n; \
                 break;
 #define CASE2(N) \
             CASE(N) \
@@ -695,8 +698,7 @@ fast_next_opcode:
             CASE2048(N+2048)
 [...]
 while(1) {
-    if (i > 0x2FFFFFFF)
-       break;
+    if (i > 0x2FFFFFFF) break;
     opcode = sequence[i % sequence_len];
     switch(opcode) {
         CASE4096(0)
@@ -708,19 +710,19 @@ while(1) {
 \begin{column}{0.4\textwidth}
 \begin{lstlisting}[language=c, caption=Sequential vs Random opcode, numbers=none]
 |@\tikzmark{one}{}@|case1:
-    flag[1] = [1];
+    [...]
     break;
 |@\tikzmark{two}{}@|case2:|@\tikzmark{two_right}{}@|
-    flag[2] = [2];
+    [...]
     break;
 |@\tikzmark{three}{}@|case3:|@\tikzmark{three_right}{}@|
-    flag[3] = [3];
+    [...]
     break;
 |@\tikzmark{four}{}@|case4:|@\tikzmark{four_right}{}@|
-    flag[4] = [4];
+    [...]
     break;
 |@\tikzmark{five}{}@|case5:|@\tikzmark{five_right}{}@|
-    flag[5] = [5];
+    [...]
     break;
 |@
 \begin{tikzpicture}[overlay,remember picture]
@@ -779,16 +781,19 @@ while(1) {
 \node[anchor=west] (source2) at (axis cs:150,3.5){};
 \node[anchor=west] (source3) at (axis cs:200,3.5){};
 \node[anchor=west] (source4) at (axis cs:900,16){};
+\node[anchor=west] (source5) at (axis cs:900,23){};
 
 \node (destination) at (axis cs:512,0.5){};
 \node (destination2) at (axis cs:360,0.3){};
 \node (destination3) at (axis cs:300,0.4){};
 \node (destination4) at (axis cs:1024,13){};
+\node (destination5) at (axis cs:1024,19.5){};
 
 \only<3>{\draw[-stealth, thick, blue] (source)--(destination);}
 \only<4>{\draw[-stealth, thick, blue] (source)--(destination2);}
 \only<6>{\draw[-stealth, thick, red] (source2)--(destination3);}
 \only<7>{\draw[-stealth, thick, red] (source4)--(destination4);}
+\only<10>{\draw[-stealth, thick, green] (source5)--(destination5);}
 
 \end{axis}
 \end{tikzpicture}
@@ -801,30 +806,122 @@ while(1) {
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{ATLAS Kit Validation}
 \begin{frame}[fragile]{ATLAS Kit Validation}
-\vspace{-5mm}
+\vspace{-20mm}
+
     \begin{columns}[t]
         \begin{column}{0.55\textwidth}
+        \begin{minipage}[t][4cm][t]{\textwidth}
         \small
-        \setlist{label=$\diamond$}
+        \setlist{leftmargin=4mm,label=$\diamond$}
         \begin{itemize}
             \item<1-> Toolkit adopted by the ATLAS collaboration for the validation of their software installation
-            \item<2-> Fast benchmark candidate using the GEANT4 simulation of the ATLAS detector
-            \item<3-> Simulates $n$ muon particles propagating through the ATLAS
+            \item<1-> Fast benchmark candidate using the GEANT4 simulation of the ATLAS detector
+            \item<1-> Simulates $n$ muon particles propagating through the ATLAS
             detector, calculates average simulation time (excluding setup overhead)
-        \end{itemize}
-        \end{column}
-        \begin{column}{0.55\textwidth}
 
+            \item<1-> Extensively tested on VMs running on Haswell hypervisors a
+                      as part of cloud benchmarking activities [REFERENCE here]
+        \end{itemize}
+        \end{minipage}
+        \end{column}
+        \small
+        \setlist{leftmargin=4mm,label=$\diamond$}
+        \begin{column}{0.50\textwidth}
+        \begin{minipage}[t][4cm][t]{\textwidth}
         \begin{figure}[H]
         \begin{center}
-            \includegraphics[scale=0.35]<4->{images/dual-mode-gaussian.png}
+            \includegraphics[scale=0.3]<3->{images/dual-mode-gaussian.png}
         \end{center}
         \end{figure}
-
+        \vspace{-7mm}
+        \small
+        \setlist{leftmargin=4mm,label=$\diamond$}
+        \begin{itemize}
+            \item<4-> Results highlighted a dual mode gaussian distribution 
+            \item<5-> $\Delta mean = 2\%$
+            \item<6->\textbf{Effect appearing only with \newline ATLAS KV}
+        \end{itemize}
+        \end{minipage}
         \end{column}
 
     \end{columns}
 
+\end{frame}
+
+
+\begin{frame}[fragile]{Meet ATLAS Kit Validation}
+
+\vspace{-20mm}
+\begin{columns}[t]
+\begin{column}{0.40\textwidth}
+\begin{minipage}[t][4cm][t]{\textwidth}
+\begin{lstlisting}[language=Python, caption=/proc/\$(pgrep athena)/status,
+                   numbers=none,
+                   linebackgroundcolor={%
+                   \btLstHL<2>{4,5}%
+                   \btLstHL<3>{9}%
+                   \btLstHL<4>{13}%
+                   \btLstHL<5>{16}%
+                   \btLstHL<6>{19}}]
+Name:   athena.py
+State:  R (running)
+[...]
+VmPeak:  1389268 kB
+VmSize:  1389268 kB
+VmLck:         0 kB
+VmPin:         0 kB
+VmHWM:    973836 kB
+VmRSS:    973836 kB
+RssAnon:          841472 kB
+RssFile:          132364 kB
+RssShmem:              0 kB
+VmData:   898668 kB
+VmStk:       432 kB
+VmExe:      1400 kB
+VmLib:    215972 kB
+VmPTE:      2596 kB
+VmSwap:        0 kB
+Threads:        2
+[...]
+\end{lstlisting}
+\end{minipage}
+\end{column}
+\begin{column}{0.70\textwidth}
+\begin{minipage}[t][4cm][t]{\textwidth}
+\small
+\setlist{leftmargin=4mm,label=$\diamond$}
+\begin{itemize}
+    \item<2-6> Large VA space
+    \item<3-6> Large portion or VA space also resident
+    \item<4-6> Mostly data (detector geometry, list of particles, properties of the
+materials)
+    \item<5-6> Large code segment (\textgreater 300 shared objects mapped in the VA space)
+    \item<6> Single threaded (plus an additional control thread)
+
+\end{itemize}
+\end{minipage}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{ATLAS KV - Bare metal results}
+    \begin{columns}[t]
+        \begin{column}{1\textwidth}
+        \begin{minipage}[t][4cm][t]{\textwidth}
+        \vspace{-5mm}
+        \begin{figure}[H]
+        \includegraphics[scale=0.19]{images/kv_runtime.png}
+        \end{figure}
+        \small
+        \setlist{leftmargin=4mm,label=$\diamond$}
+        \begin{itemize}
+            \item<2-> Single threaded bare metal runs were 12\% slower on CPU 8 (or 8 and 24 with HyperThreading on)
+            \item<3-> Some events required up to 20\% more time to be simulated on CPU 8 
+            \item<4-> Reproducible in virtualized environment, where single threaded runs were  16\% slower on CPU 8
+        \end{itemize}
+        \end{minipage}
+        \end{column}
+    \end{columns}
 \end{frame}
 \backcover
 
