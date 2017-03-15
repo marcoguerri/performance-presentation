@@ -152,53 +152,59 @@
 \frontcover
 \frame{\titlepage}
 \frame{\tableofcontents}
-\section{Dirac Benchmark 2012}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% Dirac Benchmark 2012
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Dirac Benchmark 2012}
 \begin{frame}[fragile]{Dirac Benchmark 12}
+\vspace{-5mm}
     \begin{columns}[t]
         \begin{column}{0.55\textwidth}
             \setlist{leftmargin=4mm,label=$\diamond$}
-            \begin{itemize}[noitemsep,topsep=0pt]
-            \small
-                \item Python benchmark, basically \textit{random.normalvariate()}
-                 \item Considered an excellent predictor of performance of
-                          LHCb MC jobs
-            \end{itemize}
             \hypersetup{colorlinks=true, linkbordercolor=red, pdfborderstyle={/S/U/W 0.2}}
-            \begin{lstlisting}[language=Python, caption=Source code avilable on
-                                \href{https://github.com/DIRACGrid/DB12}{github},
+            \begin{lstlisting}[language=Python, caption=Excerpt from Dirac Benchmark 12
+                                (\href{https://github.com/DIRACGrid/DB12}{github}),
                                  numbers=none]
-for i in range( iterations + 1):
+  for i in range( iterations + 1 ):
     if i == 1:
-      start = os.times()
-
-    for _j in xrange( n ):
+        start = os.times()
+    # Now the iterations
+    for j in range( n ):
       t = random.normalvariate( 10, 1 )
       m += t
       m2 += t * t
       p += t
       p2 += t * t
+
+  end = os.times()
+  cput = sum( end[:4] ) - sum( start[:4] )
+  wall = end[4] - start[4]
             \end{lstlisting}
-            \hypersetup{colorlinks=true, linkbordercolor=lightblue, pdfborderstyle={}}
         \end{column}
     \begin{column}{0.55\textwidth}
+
 \def\arraystretch{1.2}
 \arrayrulewidth=0.4pt
 
-\only<2->{
+\begin{minipage}[t][4cm][t]{\textwidth}
+\only<5->{
+\vspace{-7mm}
 \begin{table}
 
 \def\fourthrowcolor{}
 \def\fifthrowcolor{}
 \def\sixthrowcolor{}
 \def\seventhrowcolor{}
-\only<4>{\def\fourthrowcolor{\rowcolor{lightgray}}}
-\only<5>{\def\fifthrowcolor{\rowcolor{lightgray}}}
-\only<6>{\def\sixthrowcolor{\rowcolor{lightgray}}}
-\only<7>{\def\seventhrowcolor{\rowcolor{lightgray}}}
+\only<7>{\def\fourthrowcolor{\rowcolor{lightgray}}}
+\only<8>{\def\fifthrowcolor{\rowcolor{lightgray}}}
+\only<9>{\def\sixthrowcolor{\rowcolor{lightgray}}}
+\only<10>{\def\seventhrowcolor{\rowcolor{lightgray}}}
 
 \tiny
-\begin{tabular}{ l |  c |  c   }
+\begin{tabular}{ l |  l |  l   }
    \multicolumn{3}{ c }{Hardware configuration} \\
    \hline
    & \textbf{Ivy Bridge} & \textbf{Haswell} \\
@@ -208,23 +214,36 @@ for i in range( iterations + 1):
   Base/Turbo CLK & 2.6/3.4  & 2.6/3.4  \\
   RAM  & 64 GiB DDR3 & 128 GiB DDR4 \\
   OS & CentOS 7.3 & CentOS 7.3  \\
+  gcc & 4.8.5 & 4.8.5  \\
+  Python & 2.7.5-48 & 2.7.5-48 \\
+   \hline
    \multicolumn{3}{ c }{Benchmark results} \\
     \hline
     \fourthrowcolor $HS06_{32 t}$ & 350.19 & 360.87 \\
     \fifthrowcolor $HS06_{1 t}$ & 26.35 & 28.54  \\
     \sixthrowcolor $DB12_{32 t}$ & 10.98 & 12.27 \\
-    \seventhrowcolor $DB12_{1 t}$ & 20.99 & 30.17 \\
-  \hline
+    \seventhrowcolor $DB12_{1 t}$ & 20.99 & 30.17 \\ 
+    \hline
 \end{tabular}
 \end{table}
 }
+\end{minipage}
 
 % Additional step for impressive zoom-in
-\only<3>{}
+\only<6>{}
 
 
 \end{column}
 \end{columns}
+
+            \setlist{leftmargin=4mm,label=$\diamond$}
+            \begin{itemize}[noitemsep,topsep=0pt]
+            \small
+                \item<2-> Python benchmark, less than 100 LOC, 2 minutes runtime
+                 \item<3-> Iteration over \textit{random.normalvariate()} plus arithmentic operations
+                 \item<4-> Considered an excellent predictor of performance of
+                          LHCb MC jobs
+            \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{DB 12 - Functions profile}
@@ -294,7 +313,7 @@ for i in range( iterations + 1):
 \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{DB 12 - PyEval\_EvalFramEx analysis}
+\begin{frame}[fragile]{DB 12 - PyEval\_EvalFrameEx analysis}
 \begin{columns}[t]
 
 \begin{column}{0.5\textwidth}
@@ -476,7 +495,7 @@ switch (opcode) {
 \begin{frame}[fragile]{DB 12 - Mispredicted branches (CC7)}
 
 \setlist{leftmargin=1mm,label=$\diamond$}
-\begin{lstlisting}[language=Python, caption=Mispredicted branches on Ivy Bridge - function annotation (SLC6),
+\begin{lstlisting}[language=Python, caption=Mispredicted branches on Ivy Bridge - function annotation (CC7),
                    linebackgroundcolor={\btLstHL<2->{3}}]
 Samples: 142K of event 'branch-misses:pp', Event count (approx.): 889919468
 Overhead  Command  Shared Object        Symbol
@@ -580,7 +599,75 @@ switch (opcode) {
 \end{columns}
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% What is the difference?
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{DB 12 - switch vs computed gotos}
+\setlist{leftmargin=1mm,label=$\diamond$}
+\vspace{-5mm}
+\begin{columns}[t]
+\begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=c, caption=switch based implementation SLC6,
+                   linebackgroundcolor={\btLstHL<2->{3}},
+                    basicstyle=\fontfamily{pcr}\tiny]
+fast_next_opcode:
+    [...]
+  switch (opcode) {
 
+        case NOP:
+            goto fast_next_opcode;
+
+        [...]
+
+        case LOAD_CONST:
+            x = GETITEM(consts, oparg);
+            Py_INCREF(x);
+            PUSH(x);
+            goto fast_next_opcode;
+
+        PREDICTED_WITH_ARG(STORE_FAST);
+        case STORE_FAST:
+            v = POP();
+            SETLOCAL(oparg, v);
+            goto fast_next_opcode;
+        [...]
+    }
+\end{lstlisting}
+
+\end{column}
+\begin{column}{0.5\textwidth}
+
+\begin{lstlisting}[language=c, caption=computed gotos implementation - CC7,
+                   linebackgroundcolor={\btLstHL<2->{5,14,22}}]
+  switch (opcode) {
+
+        TARGET_NOARG(NOP)
+        {
+            FAST_DISPATCH();
+        }
+
+        [...]
+        TARGET(LOAD_CONST)
+        {
+            x = GETITEM(consts, oparg);
+            Py_INCREF(x);
+            PUSH(x);
+            FAST_DISPATCH();
+        }
+
+        PREDICTED_WITH_ARG(STORE_FAST);
+        TARGET(STORE_FAST)
+        {
+            v = POP();
+            SETLOCAL(oparg, v);
+            FAST_DISPATCH();
+        }
+        [...]
+  }
+\end{lstlisting}
+\end{column}
+\end{columns}
+\end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Reproducing mispredicted branches
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -667,10 +754,13 @@ while(1) {
              ylabel style={font=\scriptsize},
              yticklabel style={font=\tiny},
              xticklabel style={font=\tiny,rotate=0},
-             legend style={at={(0.98,0.2)}, font=\sffamily\tiny},
+             legend style={at={(0.98,0.3)}, font=\sffamily\tiny},
+             grid style={dash pattern = on 0.1mm off 0.5mm,gray}
 }
 \pgfplotstableread{branch_random_haswell.data}{\pistonkinetics}
 \pgfplotstableread{branch_sequential_haswell.data}{\pistonkinetics}
+\pgfplotstableread{branch_random_ivybridge.data}{\pistonkinetics}
+\pgfplotstableread{branch_sequential_ivybridge.data}{\pistonkinetics}
 \begin{center}
 \begin{tikzpicture}[scale=1]
 
@@ -680,18 +770,60 @@ while(1) {
              xlabel=Opcode sequence length,
               legend entries={Haswell random, Haswell sequential, Ivy Bridge random, Ivy Bridge sequential}]
 
-\addplot [black, thin, fill opacity=0.2,visible on=<2->] table [x={len}, y={mispredictions_random_haswell}] {\pistonkinetics};
+\addplot [blue, thin, fill opacity=0.2,visible on=<2->] table [x={len}, y={mispredictions_random_haswell}] {\pistonkinetics};
 \addplot [red, thin, fill opacity=0.2,visible on=<5->] table [x={len}, y={mispredictions_sequential_haswell}] {\pistonkinetics};
+\addplot [black, thin, fill opacity=0.2,visible on=<8->] table [x={len}, y={mispredictions_random_ivybridge}] {\pistonkinetics};
+\addplot [green, thin, fill opacity=0.2,visible on=<9->] table [x={len}, y={mispredictions_sequential_ivybridge}] {\pistonkinetics};
 
 \node[anchor=west] (source) at (axis cs:256,3.5){};
+\node[anchor=west] (source2) at (axis cs:150,3.5){};
+\node[anchor=west] (source3) at (axis cs:200,3.5){};
+\node[anchor=west] (source4) at (axis cs:900,16){};
+
 \node (destination) at (axis cs:512,0.5){};
 \node (destination2) at (axis cs:360,0.3){};
-\only<3>{\draw[-stealth, thick, black] (source)--(destination);}
-\only<4>{\draw[-stealth, thick, black] (source)--(destination2);}
+\node (destination3) at (axis cs:300,0.4){};
+\node (destination4) at (axis cs:1024,13){};
+
+\only<3>{\draw[-stealth, thick, blue] (source)--(destination);}
+\only<4>{\draw[-stealth, thick, blue] (source)--(destination2);}
+\only<6>{\draw[-stealth, thick, red] (source2)--(destination3);}
+\only<7>{\draw[-stealth, thick, red] (source4)--(destination4);}
 
 \end{axis}
 \end{tikzpicture}
 \end{center}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% ATLAS Kit Validation
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{ATLAS Kit Validation}
+\begin{frame}[fragile]{ATLAS Kit Validation}
+\vspace{-5mm}
+    \begin{columns}[t]
+        \begin{column}{0.55\textwidth}
+        \small
+        \setlist{label=$\diamond$}
+        \begin{itemize}
+            \item<1-> Toolkit adopted by the ATLAS collaboration for the validation of their software installation
+            \item<2-> Fast benchmark candidate using the GEANT4 simulation of the ATLAS detector
+            \item<3-> Simulates $n$ muon particles propagating through the ATLAS
+            detector, calculates average simulation time (excluding setup overhead)
+        \end{itemize}
+        \end{column}
+        \begin{column}{0.55\textwidth}
+
+        \begin{figure}[H]
+        \begin{center}
+            \includegraphics[scale=0.35]<4->{images/dual-mode-gaussian.png}
+        \end{center}
+        \end{figure}
+
+        \end{column}
+
+    \end{columns}
 
 \end{frame}
 \backcover
