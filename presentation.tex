@@ -20,12 +20,14 @@
 \usepackage{beamerthemecern}
 \usepackage{booktabs}
 \usepackage{pgffor}
+\usepackage{etex}
 \usepackage{lstlinebgrd}
 \usepackage[export]{adjustbox}
 \usepackage{enumitem}
 \usepackage{caption}
 \usepackage{listings}
 \usepackage{tikz}
+\usetikzlibrary{shapes.symbols}
 \usepackage{filecontents}
 \usepackage{pgfplots}
 \usetikzlibrary{arrows,shapes,calc}
@@ -72,6 +74,7 @@
     tabsize=2,
     captionpos=b,
     numbers=left,
+    showstringspaces=false,
     stepnumber=1,
     numberstyle=\tiny,
     numbersep=5pt,
@@ -155,7 +158,7 @@
 \frame{\tableofcontents}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
+%
 % Dirac Benchmark 2012
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -223,7 +226,7 @@
     \fourthrowcolor $HS06_{32 t}$ & 350.19 & 360.87 \\
     \fifthrowcolor $HS06_{1 t}$ & 26.35 & 28.54  \\
     \sixthrowcolor $DB12_{32 t}$ & 10.98 & 12.27 \\
-    \seventhrowcolor $DB12_{1 t}$ & 20.99 & 30.17 \\ 
+    \seventhrowcolor $DB12_{1 t}$ & 20.99 & 30.17 \\
     \hline
 \end{tabular}
 \end{table}
@@ -779,28 +782,20 @@ while(1) {
 
 \node[anchor=west] (source) at (axis cs:256,3.5){};
 \node[anchor=west] (source2) at (axis cs:150,3.5){};
-\node[anchor=west] (source3) at (axis cs:200,3.5){};
-\node[anchor=west] (source4) at (axis cs:900,16){};
-\node[anchor=west] (source5) at (axis cs:900,23){};
 
 \node (destination) at (axis cs:512,0.5){};
 \node (destination2) at (axis cs:360,0.3){};
 \node (destination3) at (axis cs:300,0.4){};
-\node (destination4) at (axis cs:1024,13){};
-\node (destination5) at (axis cs:1024,19.5){};
 
 \only<3>{\draw[-stealth, thick, blue] (source)--(destination);}
-\only<4>{\draw[-stealth, thick, blue] (source)--(destination2);}
 \only<6>{\draw[-stealth, thick, red] (source2)--(destination3);}
-\only<7>{\draw[-stealth, thick, red] (source4)--(destination4);}
-\only<10>{\draw[-stealth, thick, green] (source5)--(destination5);}
 
 \end{axis}
 \end{tikzpicture}
 \end{center}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
+%
 % ATLAS Kit Validation
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -830,16 +825,17 @@ while(1) {
         \begin{minipage}[t][4cm][t]{\textwidth}
         \begin{figure}[H]
         \begin{center}
-            \includegraphics[scale=0.3]<3->{images/dual-mode-gaussian.png}
+            \includegraphics[scale=0.15]<3->{images/dual-mode-gaussian.png}
         \end{center}
         \end{figure}
         \vspace{-7mm}
         \small
         \setlist{leftmargin=4mm,label=$\diamond$}
         \begin{itemize}
-            \item<4-> Results highlighted a dual mode gaussian distribution 
-            \item<5-> $\Delta mean = 2\%$
-            \item<6->\textbf{Effect appearing only with \newline ATLAS KV}
+            \item<4-> Results highlighted a dual mode gaussian distribution
+            \item<5->\textbf{Effect appearing only with \newline ATLAS KV}
+            \item<6->Slower samples consistently collected from VM running on
+            CPU1.
         \end{itemize}
         \end{minipage}
         \end{column}
@@ -849,80 +845,360 @@ while(1) {
 \end{frame}
 
 
-\begin{frame}[fragile]{Meet ATLAS Kit Validation}
+%\begin{frame}[fragile]{Meet ATLAS Kit Validation}
+%
+%\vspace{-20mm}
+%\begin{columns}[t]
+%\begin{column}{0.40\textwidth}
+%\begin{minipage}[t][4cm][t]{\textwidth}
+%\begin{lstlisting}[language=Python, caption=/proc/\$(pgrep athena)/status,
+%                   numbers=none,
+%                   linebackgroundcolor={%
+%                   \btLstHL<2>{4,5}%
+%                   \btLstHL<3>{9}%
+%                   \btLstHL<4>{13}%
+%                   \btLstHL<5>{16}%
+%                   \btLstHL<6>{19}}]
+%Name:   athena.py
+%State:  R (running)
+%[...]
+%VmPeak:  1389268 kB
+%VmSize:  1389268 kB
+%VmLck:         0 kB
+%VmPin:         0 kB
+%VmHWM:    973836 kB
+%VmRSS:    973836 kB
+%RssAnon:          841472 kB
+%RssFile:          132364 kB
+%RssShmem:              0 kB
+%VmData:   898668 kB
+%VmStk:       432 kB
+%VmExe:      1400 kB
+%VmLib:    215972 kB
+%VmPTE:      2596 kB
+%VmSwap:        0 kB
+%Threads:        2
+%[...]
+%\end{lstlisting}
+%\end{minipage}
+%\end{column}
+%\begin{column}{0.70\textwidth}
+%\begin{minipage}[t][4cm][t]{\textwidth}
+%\small
+%\setlist{leftmargin=4mm,label=$\diamond$}
+%\begin{itemize}
+%    \item<2-6> Large VA space
+%    \item<3-6> Large portion or VA space also resident
+%    \item<4-6> Mostly data (detector geometry, list of particles, properties of the
+%materials)
+%    \item<5-6> Large code segment (\textgreater 300 shared objects mapped in the VA space)
+%    \item<6> Single threaded (plus an additional control thread)
+%
+%\end{itemize}
+%\end{minipage}
+%\end{column}
+%\end{columns}
+%\end{frame}
 
-\vspace{-20mm}
-\begin{columns}[t]
-\begin{column}{0.40\textwidth}
-\begin{minipage}[t][4cm][t]{\textwidth}
-\begin{lstlisting}[language=Python, caption=/proc/\$(pgrep athena)/status,
-                   numbers=none,
+\begin{frame}[t]{ATLAS KV - Bare metal results}
+    \begin{columns}[t]
+        \begin{column}{0.3\textwidth}
+
+        \begin{minipage}[t][4cm][t]{\textwidth}
+        \vspace{-10mm}
+
+        \scriptsize
+        \begin{table}
+        \def\greencolor{}
+        \def\redcolor{}
+        \only<2->{\def\greencolor{\rowcolor{green}}}
+        \only<3->{\def\redcolor{\rowcolor{red}}}
+
+        \begin{tabular}{ l |  l  }
+            \multicolumn{2}{c}{CPU0  (sec/evt)} \\
+            \hline
+            \greencolor Core 0  & 0.80 \\
+            \hline
+            \greencolor Core 1  & 0.80\\
+            \hline
+            \greencolor Core 2  & 0.80\\
+            \hline
+            \greencolor Core 3  & 0.81\\
+            \hline
+            \greencolor Core 4  & 0.81\\
+            \hline
+            \greencolor Core 5  & 0.81\\
+            \hline
+            \greencolor Core 6  & 0.80\\
+            \hline
+            \greencolor Core 7  & 0.81\\
+            \hline
+            \noalign{\vskip 2mm}
+            \multicolumn{2}{c}{CPU1 (sec/evt)} \\
+            \hline
+            \redcolor Core 8  & 0.90\\
+            \hline
+            \greencolor Core 9  & 0.81\\
+            \hline
+            \greencolor Core 10  & 0.79\\
+            \hline
+            \greencolor Core 11  & 0.80\\
+            \hline
+            \greencolor Core 12  & 0.80\\
+            \hline
+            \greencolor Core 13  & 0.81\\
+            \hline
+            \greencolor Core 14 & 0.79\\
+            \hline
+            \greencolor Core 15  & 0.81\\
+            \hline
+        \end{tabular}
+        \end{table}
+        \end{minipage}
+        \end{column}
+
+        \begin{column}{0.7\textwidth}
+        \small
+        \setlist{leftmargin=4mm,label=$\diamond$}
+        \begin{itemize}
+            \item<3-> Single threaded bare metal runs were 12\% slower on core 8 (or threads 8 and 24 with HyperThreading on)
+            \item<4-> Some events required up to 20\% more time to be simulated on core 8
+            \item<5-> Reproducible in virtualized environment, where single threaded runs were  16\% slower on core 8
+        \end{itemize}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+
+\begin{frame}[fragile]{ATLAS KV - Functions profile}
+\begin{lstlisting}[language=Python, caption=Functions profile on core 0 (single event),
                    linebackgroundcolor={%
-                   \btLstHL<2>{4,5}%
-                   \btLstHL<3>{9}%
-                   \btLstHL<4>{13}%
-                   \btLstHL<5>{16}%
-                   \btLstHL<6>{19}}]
-Name:   athena.py
-State:  R (running)
-[...]
-VmPeak:  1389268 kB
-VmSize:  1389268 kB
-VmLck:         0 kB
-VmPin:         0 kB
-VmHWM:    973836 kB
-VmRSS:    973836 kB
-RssAnon:          841472 kB
-RssFile:          132364 kB
-RssShmem:              0 kB
-VmData:   898668 kB
-VmStk:       432 kB
-VmExe:      1400 kB
-VmLib:    215972 kB
-VmPTE:      2596 kB
-VmSwap:        0 kB
-Threads:        2
+                        \btLstHL<2>{1,2,6,9}%
+                        \btLstHL<3>{3,4,8,10}}]
+12.72%  athena.py  libm-2.17.so      [.] __ieee754_log_avx
+ 7.36%  athena.py  libm-2.17.so      [.] __ieee754_exp_avx
+ 5.51%  athena.py  libG4global.so    [.] G4PhysicsVector::Value
+ 3.64%  athena.py  libG4processes.so [.] G4UniversalFluctuation::SampleFluctuations
+ 3.25%  athena.py  libm-2.17.so      [.] __GI___exp
+ 2.67%  athena.py  libm-2.17.so      [.] __sin_avx
+ 2.54%  athena.py  libMagFieldServices.so [.] BFieldCache::getB
+ 2.26%  athena.py  libG4tracking.so  [.] G4SteppingManager::DefinePhysicalStepLength
+ 2.13%  athena.py  libm-2.17.so      [.] __cos_avx
+ 1.81%  athena.py  libG4geometry.so  [.] G4Navigator::LocateGlobalPointWithinVolume
 [...]
 \end{lstlisting}
-\end{minipage}
-\end{column}
-\begin{column}{0.70\textwidth}
-\begin{minipage}[t][4cm][t]{\textwidth}
-\small
-\setlist{leftmargin=4mm,label=$\diamond$}
-\begin{itemize}
-    \item<2-6> Large VA space
-    \item<3-6> Large portion or VA space also resident
-    \item<4-6> Mostly data (detector geometry, list of particles, properties of the
-materials)
-    \item<5-6> Large code segment (\textgreater 300 shared objects mapped in the VA space)
-    \item<6> Single threaded (plus an additional control thread)
 
-\end{itemize}
+\vspace{-1mm}
+\begin{lstlisting}[language=Python, caption=Functions profile on core 8 (single event),
+                   linebackgroundcolor={%
+                        \btLstHL<2>{1,2,6,9}%
+                        \btLstHL<3>{3,4,8,10}}]
+11.38%  athena.py  libm-2.17.so      [.] __ieee754_log_avx
+ 6.44%  athena.py  libm-2.17.so      [.] __ieee754_exp_avx
+ 4.90%  athena.py  libG4global.so    [.] G4PhysicsVector::Value
+ 3.38%  athena.py  libG4processes.so [.] G4UniversalFluctuation::SampleFluctuations
+ 2.88%  athena.py  libm-2.17.so      [.] __GI___exp
+ 2.64%  athena.py  libm-2.17.so      [.] __sin_avx
+ 2.51%  athena.py  libMagFieldServices.so [.] BFieldCache::getB
+ 1.93%  athena.py  libG4tracking.so  [.] G4SteppingManager::DefinePhysicalStepLength
+ 1.83%  athena.py  libm-2.17.so      [.] __cos_avx
+[...]
+\end{lstlisting}
+
+\end{frame}
+
+
+\begin{frame}[fragile]{ATLAS KV - Main contributors}
+    \begin{columns}[t]
+        \begin{column}{1\textwidth}
+        \vspace{-10mm}
+        \begin{lstlisting}[language=Python,
+                         linebackgroundcolor={%
+                        \btLstHL<2->{2}}]
+         :     G4StepLimiter::PostStepGetPhysicalInteractionLength
+   39.78 :        32fab0:       push   %rbx
+    0.12 :        32fab1:       movl   $0x2,(%rdx)
+    0.00 :        32fab7:       xor    %eax,%eax
+   [...]
+        \end{lstlisting}
+        \begin{lstlisting}[language=Python, 
+                         linebackgroundcolor={%
+                        \btLstHL<2->{2,3}}]
+         :      __sin_avx():
+    6.73 :        64a30:       push   %r12
+   24.77 :        64a32:       vmovapd %xmm0,%xmm2
+    4.10 :        64a36:       push   %rbp
+    1.23 :        64a37:       push   %rbx
+        \end{lstlisting}
+        \begin{lstlisting}[language=Python,
+                         linebackgroundcolor={%
+                        \btLstHL<2->{2}}]
+         :      __log10_finite:                                              
+    7.59 :        14690:       movabs $0xfffffffffffff,%rcx                     
+    0.00 :        1469a:       movq   %xmm0,%rax                                
+    0.00 :        1469f:       cmp    %rcx,%rax                                 
+    1.60 :        146a2:       jg     146d8 <__log10_finite+0x48>
+        \end{lstlisting}
+
+
+        \small
+        \setlist{leftmargin=4mm,label=$\diamond$}
+        \begin{itemize}
+            \item<3-> Unexpectedly large number of cycles spent at the beginning of each funtion (e.g. mov of literal value to register taking up 8\%)
+            \item<4-> Instruction cache misses?
+        \end{itemize}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{ATLAS KV - Synthetic benchmarks}
+    \begin{columns}[t]
+        \begin{column}{0.5\textwidth}
+
+        \begin{minipage}[t][8cm][t]{\textwidth}
+
+    \vspace{-12mm}
+        \begin{lstlisting}[language=C, numbers=none]
+void f_SmqACt() {
+    fib_n = fib_1 + fib_2;
+    fib_2 = fib_1;
+    fib_1 = fib_n;
+    fib_n = fib_1 + fib_2;
+    fib_2 = fib_1;
+    fib_1 = fib_n;
+}
+
+void f_y3OvCQ() {
+    [...]
+}
+
+int main() {
+    f_SmqACt();
+    [...]
+    f_y3OvCQ();
+    [...]
+}
+        \end{lstlisting}
+        \small
+        \setlist{leftmargin=4mm,label=$\diamond$}
+        \begin{itemize}
+            \item<2-> Running 11\% slower on core 8, but workloads with similar 
+            instruction cache miss rate did not show similar asymmetry
+        \end{itemize}
+
+        \end{minipage}
+        \end{column}
+
+        \begin{column}{0.6\textwidth}
+
+        \begin{minipage}[t][8cm][t]{\textwidth}
+        \vspace{-5mm}
+\begin{onlyenv}<3->
+        \begin{lstlisting}[language=C, numbers=none,
+                         linebackgroundcolor={%
+                        \btLstHL<5->{5,10,11}}]
+#define CASE(N) \
+case N: \
+{       \
+__asm__  volatile(\
+     "lea 0x0(%%rip), %%rax\n\t"  \
+     "movq %%rax, %0\n\t" \
+     : "=m" (ip)           \
+     : \
+     : "%rax"); \
+      max_ip = max_ip ^ \
+              ((ip ^ max_ip) & -(ip > max_ip)); \
+      break; \
+}
+    \end{lstlisting}
+    \small
+    \setlist{leftmargin=4mm,label=$\diamond$}
+    \begin{itemize}
+        \item<4-> Reused previous switch-based benchmark
+        \item<6-> Random opcode restricted to a number of case branches that
+        is increased at each run. This allows to control the size of the hot 
+        portion of the code segment
+    \end{itemize}
+\end{onlyenv}
 \end{minipage}
 \end{column}
 \end{columns}
 \end{frame}
 
-\begin{frame}[t]{ATLAS KV - Bare metal results}
+\begin{frame}[fragile]{ATLAS KV - Comparing runtime}
+
+\pgfplotsset{xlabel style={font=\scriptsize},
+             ylabel style={font=\scriptsize},
+             yticklabel style={font=\tiny},
+             scaled x ticks = false,
+             xticklabel style={font=\tiny,rotate=0},
+             legend style={at={(0.98,0.2)}, font=\sffamily\tiny},
+             grid style={dash pattern = on 0.1mm off 0.5mm,gray}
+}
+\pgfplotstableread{runtime_difference.data}{\pistonkinetics}
+\begin{center}
+\begin{tikzpicture}[scale=1]
+
+\begin{axis}[xtick={0, 524288, 2915678},
+             xticklabels={0, 512KiB, 2.8 MiB },
+             grid=both,minor tick num=1,
+             ylabel=Runtime difference (s),
+             xlabel= Code segment size (bytes),
+              legend entries={Runtime difference (Core 8 - Core 0)}]
+
+\addplot [blue, thin, fill opacity=0.2,visible on=<2->] table [x={code}, y={difference}] {\pistonkinetics};
+
+
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+
+\begin{frame}[fragile]{ATLAS KV - Results}
     \begin{columns}[t]
-        \begin{column}{1\textwidth}
-        \begin{minipage}[t][4cm][t]{\textwidth}
-        \vspace{-5mm}
-        \begin{figure}[H]
-        \includegraphics[scale=0.19]{images/kv_runtime.png}
-        \end{figure}
+        \begin{column}{0.5\textwidth}
+
+        \begin{minipage}[t][8cm][t]{\textwidth}
+
+    \vspace{-10mm}
         \small
         \setlist{leftmargin=4mm,label=$\diamond$}
         \begin{itemize}
-            \item<2-> Single threaded bare metal runs were 12\% slower on CPU 8 (or 8 and 24 with HyperThreading on)
-            \item<3-> Some events required up to 20\% more time to be simulated on CPU 8 
-            \item<4-> Reproducible in virtualized environment, where single threaded runs were  16\% slower on CPU 8
+            \item<2-> Runtime starts diverging at around 512KiB
+            \item<3-> 512KiB is the address space that can be addressed with 4KiB pages and 128 iTLB entries, which matches the iTLB size on Haswell and Broadwell microarchitecture.
+            \item<4-> If the benchmark is recompiled to use large pages (2MiB), no performance asymetry whatsover is observed 
+             \item<5-> This effect can be reproduced only on Haswell and Broadwell microarchitecture 
         \end{itemize}
+
         \end{minipage}
         \end{column}
-    \end{columns}
+
+        \begin{column}{0.6\textwidth}
+        \begin{minipage}[t][8cm][t]{\textwidth}
+        \vspace{-5mm}
+\begin{onlyenv}<3->
+    \small
+    \setlist{leftmargin=4mm,label=$\diamond$}
+    \begin{itemize}
+        \item<6-> Assuming it is really iTLB misses the root cause of this performance asymmetry, why these events are handled differenty on core 8 compared to other cores?
+    \end{itemize}
+\end{onlyenv}
+
+\begin{onlyenv}<7->
+\begin{center}
+\tikz\node[%
+    draw=black,
+    font=\fontfamily{ppl}\fontsize{2cm}{2cm}\selectfont]{?};
+\end{center}
+\end{onlyenv}
+\end{minipage}
+\end{column}
+\end{columns}
 \end{frame}
+
+
+
 \backcover
 
 \end{document}
