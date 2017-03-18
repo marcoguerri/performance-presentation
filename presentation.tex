@@ -25,6 +25,7 @@
 \usepackage[export]{adjustbox}
 \usepackage{enumitem}
 \usepackage{caption}
+\usepackage{textcomp}
 \usepackage{listings}
 \usepackage{tikz}
 \usetikzlibrary{shapes.symbols}
@@ -215,7 +216,10 @@
   \hline
   CPU & E5-2650v2  & E5-2640v3  \\
   Core/Threads & 8/16 & 8/16  \\
-  Base/Turbo CLK & 2.6/3.4  & 2.6/3.4  \\
+  Base/Turbo CLK & 2.6/3.4  & 2.6/3.4  \\ 
+  \hline
+  & \multicolumn{2}{c}{Clock set to 3.4GHz via cpupower} \\
+  \hline
   RAM  & 64 GiB DDR3 & 128 GiB DDR4 \\
   OS & CentOS 7.3 & CentOS 7.3  \\
   gcc & 4.8.5 & 4.8.5  \\
@@ -253,37 +257,37 @@
 \begin{frame}[fragile]{DB 12 - Functions profile}
 \begin{lstlisting}[language=Python, caption=Functions profile on Ivy Bridge,
                    linebackgroundcolor={%
-                        \btLstHL<2>{2}%
-                        \btLstHL<3>{7}}]
-#rank % cumulative%  function-name             image-name
-0:  40.065  40.065  PyEval_EvalFrameEx        /lib64/libpython2.7.so.1.0
-1:  10.345  50.410  _Py_add_one_to_index_C    /lib64/libpython2.7.so.1.0
-2:   6.474  56.884  PyFloat_GetInfo           /lib64/libpython2.7.so.1.0
-3:   3.743  60.627  _PyLong_Init              /lib64/libpython2.7.so.1.0
-4:   3.600  64.227  PyFloat_FromDouble        /lib64/libpython2.7.so.1.0
-5:   3.530  67.756  .text                     /usr/lib64/.../_randommodule.so
-6:   3.089  70.845  Py_UniversalNewlineFread  /lib64/libpython2.7.so.1.0
-7:   2.665  73.510  __ieee754_log_avx         /lib64/libm.so.6
-8:   2.554  76.065  PyDict_GetItem            /lib64/libpython2.7.so.1.0
-9:   2.273  78.337  _PyFloat_Unpack8          /lib64/libpython2.7.so.1.0
+                        \btLstHL<2>{3}%
+                        \btLstHL<3>{9}}]
+# Samples: 141K of event 'cycles:pp'
+# Overhead  Command  Shared Object        Symbol                                    
+    41.50%  python   libpython2.7.so.1.0  [.] PyEval_EvalFrameEx
+     6.44%  python   libpython2.7.so.1.0  [.] binary_op1
+     4.72%  python   libm-2.17.so         [.] __ieee754_log_avx
+     2.69%  python   libpython2.7.so.1.0  [.] float_mul
+     2.29%  python   libpython2.7.so.1.0  [.] lookdict_string
+     2.23%  python   libpython2.7.so.1.0  [.] float_div
+     1.73%  python   _randommodule.so     [.] genrand_int32
+     1.70%  python   libpython2.7.so.1.0  [.] PyFloat_FromDouble
+     1.68%  python   libpython2.7.so.1.0  [.] _PyType_Lookup
 \end{lstlisting}
 
 \vspace{-1mm}
 \begin{lstlisting}[language=Python, caption=Functions profile on Haswell,
                    linebackgroundcolor={%
-                        \btLstHL<2>{2}%
-                        \btLstHL<3>{7}}]
-#rank % cumulative%  function-name             image-name
-0:  40.061  40.061  PyEval_EvalFrameEx        /lib64/libpython2.7.so.1.0
-1:  10.344  50.406  _Py_add_one_to_index_C    /lib64/libpython2.7.so.1.0
-2:   6.474  56.879  PyFloat_GetInfo           /lib64/libpython2.7.so.1.0
-3:   3.743  60.622  _PyLong_Init              /lib64/libpython2.7.so.1.0
-4:   3.599  64.222  PyFloat_FromDouble        /lib64/libpython2.7.so.1.0
-5:   3.529  67.751  .text                     /usr/lib64/.../_randommodule.so
-6:   3.089  70.840  Py_UniversalNewlineFread  /lib64/libpython2.7.so.1.0
-7:   2.665  73.504  __ieee754_log_avx         /lib64/libm.so.6
-8:   2.554  76.059  PyDict_GetItem            /lib64/libpython2.7.so.1.0
-9:   2.273  78.331  _PyFloat_Unpack8          /lib64/libpython2.7.so.1.0
+                        \btLstHL<2>{3}%
+                        \btLstHL<3>{10}}]
+# Samples: 94K of event 'cycles:pp'
+# Overhead  Command  Shared Object        Symbol                                  
+    37.60%  python   libpython2.7.so.1.0  [.] PyEval_EvalFrameEx
+     7.48%  python   libpython2.7.so.1.0  [.] binary_op1
+     6.65%  python   libm-2.17.so         [.] __ieee754_log_avx
+     3.68%  python   libpython2.7.so.1.0  [.] lookdict_string
+     2.27%  python   libpython2.7.so.1.0  [.] frame_dealloc
+     2.13%  python   libpython2.7.so.1.0  [.] PyFloat_FromDouble
+     2.11%  python   libpython2.7.so.1.0  [.] float_mul
+     2.09%  python   _randommodule.so     [.] genrand_int32
+     1.94%  python   libpython2.7.so.1.0  [.] PyType_IsSubtype
 \end{lstlisting}
 
 \end{frame}
@@ -291,28 +295,27 @@
 \begin{frame}[t,fragile]
 \frametitle{DB 12 - Instructions breakdown}
 \begin{minipage}[t][2cm][t]{\textwidth}
-\vspace{-0.5cm}
+\vspace{-7.8mm}
 \begin{lstlisting}[language=Python, linebackgroundcolor={%
-                                    \btLstHL<2-6>{2}%
-                                    \btLstHL<7>{7}%
-                                    \btLstHL<8>{9}}]
-#rank % cumulative%  function-name             image-name
-0:  40.065  40.065  PyEval_EvalFrameEx        /lib64/libpython2.7.so.1.0
-1:  10.345  50.410  _Py_add_one_to_index_C    /lib64/libpython2.7.so.1.0
-2:   6.474  56.884  PyFloat_GetInfo           /lib64/libpython2.7.so.1.0
-3:   3.743  60.627  _PyLong_Init              /lib64/libpython2.7.so.1.0
-4:   3.600  64.227  PyFloat_FromDouble        /lib64/libpython2.7.so.1.0
-5:   3.530  67.756  .text                     /usr/lib64/.../_randommodule.so
-6:   3.089  70.845  Py_UniversalNewlineFread  /lib64/libpython2.7.so.1.0
-7:   2.665  73.510  __ieee754_log_avx         /lib64/libm.so.6
+                                    \btLstHL<2-6>{3}%
+                                    \btLstHL<7>{5}}]
+# Samples: 94K of event 'cycles:pp'                                             
+# Overhead  Command  Shared Object        Symbol                                
+    37.60%  python   libpython2.7.so.1.0  [.] PyEval_EvalFrameEx                
+     7.48%  python   libpython2.7.so.1.0  [.] binary_op1                        
+     6.65%  python   libm-2.17.so         [.] __ieee754_log_avx                 
+     3.68%  python   libpython2.7.so.1.0  [.] lookdict_string                   
+     2.27%  python   libpython2.7.so.1.0  [.] frame_dealloc                     
+     2.13%  python   libpython2.7.so.1.0  [.] PyFloat_FromDouble                
+     2.11%  python   libpython2.7.so.1.0  [.] float_mul                         
+     2.09%  python   _randommodule.so     [.] genrand_int32                     
 \end{lstlisting}
 \end{minipage}
 
 \begin{figure}[H]
 \begin{center}
 \includegraphics[scale=0.23]<2-6>{images/PyEval_EvalFrameEx.png}
-\includegraphics[scale=0.23]<7>{images/_randommodule.png}
-\includegraphics[scale=0.23]<8>{images/__ieee754_log_avx.png}
+\includegraphics[scale=0.23]<7>{images/__ieee754_log_avx.png}
 \end{center}
 \end{figure}
 \end{frame}
@@ -424,19 +427,19 @@ switch (opcode) {
    \hline
    & \textbf{Ivy Bridge} & \textbf{Haswell} &  $\Delta$ \\
     \hline
-  \firstrowcolor task-clock & 34725.557061  & 24105.686437 &  10s\\
-  \secondrowcolor context-switches & 1,757  & 1,220 & -30\% \\
-  \thirdrowcolor cpu-migrations & 0  & 1 &  \\
-  \fourthrowcolor page-faults & 77,735  & 77,727 &  -0.01\% \\
-  \fifthrowcolor cycles & 115,880,566,912  & 79,856,590,321 &  \\
-  \sixthrowcolor stalled-cycles-frontend & 33,935,812,197  & -  &  \\
-  \seventhrowcolor instructions & 196,423,070,931  & 196,279,702,821 & -0.07\% \\
-  \eighthrowcolor branches & 39,007,221,715  & 38,988,806,436 & -0.04\%  \\
-  \ninethrowcolor \fourteenthrowcolor branch-misses & 771,858,119  & 148,049,799 & -80\% \\
-  \tenthrowcolor L1-dcache-loads & 65,738,912,645  & 65,709,868,550 & -0.4\% \\
-  \eleventhrowcolor L1-dcache-load-misses & 223,445,275  & 190,642,933 & -14.6\% \\
-  \twelvethrowcolor LLC-loads & 18,182,616  & 17,276,409 & -5\% \\
-  \thirteenthrowcolor LLC-load-misses & 12,658,059  & 12,296,728 & -2.8\%  \\
+  \firstrowcolor task-clock & 35123.767954  & 24124.565822 &  11s\\
+  \secondrowcolor context-switches & 19  & 203 & +90\% \\
+  \thirdrowcolor cpu-migrations & 1  & 1 &  \\
+  \fourthrowcolor page-faults & 78,758  & 78,751 &  -0.01\% \\
+  \fifthrowcolor cycles & 119,799,925,683  & 80,485,610,922 &  \\
+  \sixthrowcolor stalled-cycles-frontend & 35,803,066,056  & -  &  \\
+  \seventhrowcolor instructions & 196,469,067,152  & 196,319,182,247 & -0.08\% \\
+  \eighthrowcolor branches & 39,013,715,740  & 38,992,593,937 & -0.05\%  \\
+  \ninethrowcolor \fourteenthrowcolor branch-misses & 917,651,408  & 157,213,609 & -83\% \\
+  \tenthrowcolor L1-dcache-loads & 65,708,934,627  & 65,704,309,726 & -0.01\% \\
+  \eleventhrowcolor L1-dcache-load-misses & 209,492,239  & 310,488,812 & +67\% \\
+  \twelvethrowcolor LLC-loads & 18,158,827  & 15,388,096 & -15\% \\
+  \thirteenthrowcolor LLC-load-misses & 12,958,060  & 11,190,855 & -13.6\%  \\
   \hline
 \end{tabular}
 \end{table}
@@ -445,54 +448,62 @@ switch (opcode) {
 \begin{itemize}
     \small
     % Why the first item is not vertically aligned?
-    \item<2|only@2> \vspace{1.01mm} Runtime in milliseconds: 10s difference
-    \item<2|only@2> \vspace{1.01mm} Looking for architectural explanation
-                                    behind additional speedup
-    \item<3|only@3> Context switches most likeley due to timer softirq
-    \item<3|only@3> 500 more context switches on Ivy Bridge, cost is negligible
-    \item<4|only@4> One more CPU migration on Haswell, cost is negligible
-    \item<5|only@5> 8 more page-faults on Ivy Bridge, cost is negligible
+    \item<2|only@2> \vspace{1.01mm} Runtime in milliseconds: 11s difference
+    \item<2|only@2> \vspace{1.01mm} Looking for architectural explanation for at least 5s
+    \item<3|only@3> $\sim$200 more context switches on Haswell, cost is negligible
+    \item<4|only@4> Same number of CPU migrations
+    \item<5|only@5> 7 more page-faults on Ivy Bridge, cost is negligible
     \item<8|only@8> Same number of instructions executed
     \item<9|only@9> Same number of branches
     \item<10|only@10> 623808320 more mispredicted branches on Ivy Bridge
-    \item<10|only@10> 20 cycles per mispredicted branch @ ~3.4GHz = 4s
+    \item<10|only@10> $\sim$20 cycles per mispredicted branch @ $\sim$3.4GHz =$\sim$4.5s
     \item<11|only@11> Negligible difference in L1d loads
-    \item<12|only@12> 32802342 more misses on Ivy Bridge
-    \item<12|only@12> 10 cycles per L1 miss, assuming it hits L2 = \textless 1s
+    \item<12|only@12> More L1d misses on Haswell
+    \item<14|only@14> More LLC misses on Ivy Bridge, cost is negligible
 \end{itemize}
 \end{minipage}
 % Ivy Bridge Profile
-%      34725.557061      task-clock (msec)         #    1.000 CPUs utilized
-%             1,757      context-switches          #    0.051 K/sec
-%                 0      cpu-migrations            #    0.000 K/sec
-%            77,735      page-faults               #    0.002 M/sec
-%   115,880,566,912      cycles                    #    3.337 GHz                      (44.45%)
-%    33,935,812,197      stalled-cycles-frontend   #   29.29% frontend cycles idle     (44.45%)
-%   196,423,070,931      instructions              #    1.70  insn per cycle
-%                                                  #    0.17  stalled cycles per insn  (55.56%)
-%    39,007,221,715      branches                  # 1123.300 M/sec                    (55.56%)
-%       771,858,119      branch-misses             #    1.98% of all branches          (55.56%)
-%    65,738,912,645      L1-dcache-loads           # 1893.099 M/sec                    (44.44%)
-%       223,445,275      L1-dcache-load-misses     #    0.34% of all L1-dcache hits    (22.22%)
-%        18,182,616      LLC-loads                 #    0.524 M/sec                    (22.22%)
-%        12,658,059      LLC-load-misses           #   69.62% of all LL-cache hits     (33.33%)
-%      34.734003622 seconds time elapsed
-
-% Haswell profile
-%      24105.686437      task-clock (msec)         #    1.000 CPUs utilized
-%             1,220      context-switches          #    0.051 K/sec
-%                 1      cpu-migrations            #    0.000 K/sec
-%            77,727      page-faults               #    0.003 M/sec
-%    79,856,590,321      cycles                    #    3.313 GHz                      (50.00%)
-%   196,279,702,821      instructions              #    2.46  insn per cycle           (62.50%)
-%    38,988,806,436      branches                  # 1617.411 M/sec                    (62.51%)
-%       148,049,799      branch-misses             #    0.38% of all branches          (62.51%)
-%    65,709,868,550      L1-dcache-loads           # 2725.907 M/sec                    (62.50%)
-%       190,642,933      L1-dcache-load-misses     #    0.29% of all L1-dcache hits    (25.00%)
-%        17,276,409      LLC-loads                 #    0.717 M/sec                    (24.99%)
-%        12,296,728      LLC-load-misses           #   71.18% of all LL-cache hits     (37.50%)
+%[root@ca5683695-21131-1 ~]# perf stat -d numactl --physcpubind=0 --membind=0 python lhcb.py
+%20.2702702703
 %
-%      24.117095520 seconds time elapsed
+% Performance counter stats for 'numactl --physcpubind=0 --membind=0 python lhcb.py':
+%
+%      35123.767954      task-clock (msec)         #    0.976 CPUs utilized          
+%                19      context-switches          #    0.001 K/sec                  
+%                 1      cpu-migrations            #    0.000 K/sec                  
+%            78,758      page-faults               #    0.002 M/sec                  
+%   119,799,925,683      cycles                    #    3.411 GHz                      (44.44%)
+%    35,803,066,056      stalled-cycles-frontend   #   29.89% frontend cycles idle     (44.44%)
+%   196,469,067,152      instructions              #    1.64  insn per cycle         
+%                                                  #    0.18  stalled cycles per insn  (55.55%)
+%    39,013,715,740      branches                  # 1110.750 M/sec                    (55.55%)
+%       917,651,408      branch-misses             #    2.35% of all branches          (55.56%)
+%    65,708,934,627      L1-dcache-loads           # 1870.783 M/sec                    (44.44%)
+%       209,492,239      L1-dcache-load-misses     #    0.32% of all L1-dcache hits    (22.22%)
+%        18,158,827      LLC-loads                 #    0.517 M/sec                    (22.22%)
+%        12,958,060      LLC-load-misses           #   71.36% of all LL-cache hits     (33.33%)
+%
+%      35.990345465 seconds time elapsed
+
+%[root@p05972678v56124 ~]# perf stat -d  numactl --physcpubind=0 --membind=0 python lhcb.py 
+%30.4311073542
+%
+% Performance counter stats for 'numactl --physcpubind=0 --membind=0 python lhcb.py':
+%
+%      24124.565822      task-clock (msec)         #    0.999 CPUs utilized          
+%               203      context-switches          #    0.008 K/sec                  
+%                 1      cpu-migrations            #    0.000 K/sec                  
+%            78,751      page-faults               #    0.003 M/sec                  
+%    80,485,610,922      cycles                    #    3.336 GHz                      (50.00%)
+%   196,319,182,247      instructions              #    2.44  insn per cycle           (62.50%)
+%    38,992,593,937      branches                  # 1616.302 M/sec                    (62.50%)
+%       157,213,609      branch-misses             #    0.40% of all branches          (62.51%)
+%    65,704,309,726      L1-dcache-loads           # 2723.544 M/sec                    (62.50%)
+%       310,488,812      L1-dcache-load-misses     #    0.47% of all L1-dcache hits    (25.00%)
+%        15,388,096      LLC-loads                 #    0.638 M/sec                    (25.00%)
+%        11,190,855      LLC-load-misses           #   72.72% of all LL-cache hits     (37.49%)
+%
+%      24.155386817 seconds time elapsed
 
 
 \end{frame}
@@ -611,7 +622,7 @@ switch (opcode) {
 \vspace{-5mm}
 \begin{columns}[t]
 \begin{column}{0.5\textwidth}
-\begin{lstlisting}[language=c, caption=switch based implementation SLC6,
+\begin{lstlisting}[language=c, caption=Switch based implementation SLC6,
                    linebackgroundcolor={\btLstHL<2->{3}},
                     basicstyle=\fontfamily{pcr}\tiny]
 fast_next_opcode:
@@ -641,7 +652,7 @@ fast_next_opcode:
 \end{column}
 \begin{column}{0.5\textwidth}
 
-\begin{lstlisting}[language=c, caption=computed gotos implementation - CC7,
+\begin{lstlisting}[language=c, caption=Computed gotos implementation - CC7,
                    linebackgroundcolor={\btLstHL<2->{5,14,22}}]
   switch (opcode) {
 
@@ -814,8 +825,8 @@ while(1) {
             \item<1-> Simulates $n$ muon particles propagating through the ATLAS
             detector, calculates average simulation time (excluding setup overhead)
 
-            \item<1-> Extensively tested on VMs running on Haswell hypervisors a
-                      as part of cloud benchmarking activities [REFERENCE here]
+            \item<1-> Extensively tested on VMs running on Haswell hypervisors
+                      as part of cloud benchmarking activities
         \end{itemize}
         \end{minipage}
         \end{column}
@@ -973,8 +984,9 @@ while(1) {
 \begin{frame}[fragile]{ATLAS KV - Functions profile}
 \begin{lstlisting}[language=Python, caption=Functions profile on core 0 (single event),
                    linebackgroundcolor={%
-                        \btLstHL<2>{1,2,6,9}%
-                        \btLstHL<3>{3,4,8,10}}]
+                        \btLstHL<2>{2,3,6,7,10}%
+                        \btLstHL<3>{4,5,9}}]
+# Samples: 125K of event ' cycles:pp', Event count (approx.): 99035639955
 12.72%  athena.py  libm-2.17.so      [.] __ieee754_log_avx
  7.36%  athena.py  libm-2.17.so      [.] __ieee754_exp_avx
  5.51%  athena.py  libG4global.so    [.] G4PhysicsVector::Value
@@ -984,15 +996,14 @@ while(1) {
  2.54%  athena.py  libMagFieldServices.so [.] BFieldCache::getB
  2.26%  athena.py  libG4tracking.so  [.] G4SteppingManager::DefinePhysicalStepLength
  2.13%  athena.py  libm-2.17.so      [.] __cos_avx
- 1.81%  athena.py  libG4geometry.so  [.] G4Navigator::LocateGlobalPointWithinVolume
-[...]
 \end{lstlisting}
 
 \vspace{-1mm}
 \begin{lstlisting}[language=Python, caption=Functions profile on core 8 (single event),
                    linebackgroundcolor={%
-                        \btLstHL<2>{1,2,6,9}%
-                        \btLstHL<3>{3,4,8,10}}]
+                        \btLstHL<2>{2,3,6,7,10}%
+                        \btLstHL<3>{4,5,9}}]
+# Samples: 141K of event ' cycles:pp', Event count (approx.): 111860905419
 11.38%  athena.py  libm-2.17.so      [.] __ieee754_log_avx
  6.44%  athena.py  libm-2.17.so      [.] __ieee754_exp_avx
  4.90%  athena.py  libG4global.so    [.] G4PhysicsVector::Value
@@ -1002,7 +1013,6 @@ while(1) {
  2.51%  athena.py  libMagFieldServices.so [.] BFieldCache::getB
  1.93%  athena.py  libG4tracking.so  [.] G4SteppingManager::DefinePhysicalStepLength
  1.83%  athena.py  libm-2.17.so      [.] __cos_avx
-[...]
 \end{lstlisting}
 
 \end{frame}
@@ -1029,6 +1039,7 @@ while(1) {
    24.77 :        64a32:       vmovapd %xmm0,%xmm2
     4.10 :        64a36:       push   %rbp
     1.23 :        64a37:       push   %rbx
+    [...]
         \end{lstlisting}
         \begin{lstlisting}[language=Python,
                          linebackgroundcolor={%
@@ -1038,6 +1049,7 @@ while(1) {
     0.00 :        1469a:       movq   %xmm0,%rax                                
     0.00 :        1469f:       cmp    %rcx,%rax                                 
     1.60 :        146a2:       jg     146d8 <__log10_finite+0x48>
+    [...]
         \end{lstlisting}
 
 
